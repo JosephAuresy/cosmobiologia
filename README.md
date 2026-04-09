@@ -21,13 +21,6 @@ cd cosmobiologia-invesciencias
 open index.html
 ```
 
-### GitHub Pages (recomendado)
-
-1. Sube el repositorio a GitHub
-2. Ve a **Settings → Pages**
-3. En **Source**, selecciona `main` branch y carpeta `/ (root)`
-4. Guarda — en 1-2 minutos la página estará en `https://TU-USUARIO.github.io/cosmobiologia-invesciencias`
-
 ## Bases de datos utilizadas / referenciadas
 
 |Base de datos|Organismo|Acceso|URL|
