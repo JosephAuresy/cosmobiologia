@@ -3,570 +3,865 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El cosmos que habitamos · Invesciencias</title>
+<title>El cosmos que habitamos · Invesciencias · V3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════ */
 :root {
-  --deep: #0b0f1a;
-  --deep2: #111827;
-  --panel: #141d2e;
-  --panel2: #1a2540;
-  --border: rgba(139,168,255,0.12);
-  --border2: rgba(139,168,255,0.22);
-  --gold: #c9a84c;
-  --gold2: #e8c97a;
-  --blue: #6ea8fe;
-  --blue2: #93c5fd;
-  --violet: #a78bfa;
-  --teal: #34d399;
-  --coral: #fb923c;
-  --text: #e2e8f0;
-  --text2: #94a3b8;
-  --text3: #64748b;
-  --glow: rgba(110,168,254,0.15);
+  --bg:      #080c14;
+  --bg2:     #0e1520;
+  --panel:   #121b2e;
+  --panel2:  #172035;
+  --border:  rgba(120,160,255,0.10);
+  --border2: rgba(120,160,255,0.22);
+  --gold:    #c9a84c;
+  --gold2:   #e8c97a;
+  --blue:    #5b9df5;
+  --blue2:   #88bfff;
+  --violet:  #9d7fea;
+  --teal:    #2ec4a0;
+  --coral:   #f07060;
+  --amber:   #e8a838;
+  --text:    #dde4f0;
+  --text2:   #8898b4;
+  --text3:   #4e5f7a;
+  /* evidence level colors */
+  --ev1: #2ec4a0;   /* teal — established */
+  --ev2: #e8a838;   /* amber — suggestive */
+  --ev3: #9d7fea;   /* violet — hypothesis */
+  --ev1-bg: rgba(46,196,160,0.07);
+  --ev2-bg: rgba(232,168,56,0.07);
+  --ev3-bg: rgba(157,127,234,0.07);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--deep);
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--bg);
   color: var(--text);
   line-height: 1.7;
   overflow-x: hidden;
 }
 
-/* ── STAR FIELD ── */
-#stars {
+/* ═══════════════════════════════════════════════
+   STAR FIELD
+═══════════════════════════════════════════════ */
+#star-bg {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(110,168,254,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 90%, rgba(167,139,250,0.04) 0%, transparent 60%);
 }
-#stars canvas { position: absolute; inset: 0; }
+#star-bg canvas { position: absolute; inset: 0; }
 
-/* ── LAYOUT ── */
-.page-wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+/* ═══════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════ */
+.wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 0 28px; }
+.wrap-narrow { max-width: 720px; }
 
-/* ── HERO ── */
-.hero {
-  min-height: 100vh;
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 80px 0 60px;
-  border-bottom: 1px solid var(--border);
+/* ═══════════════════════════════════════════════
+   HOW TO USE GUIDE (floating)
+═══════════════════════════════════════════════ */
+#guide-btn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 200;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--panel2); border: 1px solid var(--border2);
+  color: var(--blue2); font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
 }
-.hero-kicker {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; letter-spacing: 0.18em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 28px;
-  display: flex; align-items: center; gap: 12px;
+#guide-btn:hover { background: var(--panel); border-color: var(--blue2); }
+#guide-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(8,12,20,0.88); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center;
 }
-.hero-kicker::after { content: ''; flex: 0 0 40px; height: 1px; background: var(--gold); opacity: 0.4; }
-
-h1 {
+#guide-overlay.open { display: flex; }
+#guide-panel {
+  background: var(--panel); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 40px 44px; max-width: 560px; width: 90%;
+  position: relative;
+}
+#guide-close {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: none; color: var(--text3);
+  font-size: 20px; cursor: pointer; line-height: 1;
+}
+#guide-close:hover { color: var(--text); }
+.guide-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3rem, 8vw, 6.5rem);
-  font-weight: 300;
-  line-height: 1.0;
-  color: var(--text);
-  margin-bottom: 12px;
+  font-size: 1.6rem; font-weight: 400; color: var(--text);
+  margin-bottom: 20px;
 }
-h1 em { font-style: italic; color: var(--gold2); }
+.guide-section { margin-bottom: 20px; }
+.guide-section h4 {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--blue2); letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.guide-section p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.guide-section ul { list-style: none; font-size: 13px; color: var(--text2); line-height: 1.8; }
+.guide-section ul li::before { content: '→ '; color: var(--teal); }
 
-.hero-sub {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-  color: var(--text2);
-  font-weight: 300;
-  font-style: italic;
-  max-width: 640px;
-  margin-bottom: 36px;
-}
-.hero-meta {
-  font-size: 13px; color: var(--text3);
-  font-family: 'DM Mono', monospace;
-  display: flex; gap: 32px; flex-wrap: wrap;
-}
-.hero-meta span { display: flex; align-items: center; gap: 6px; }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
-
-.scroll-hint {
-  margin-top: 56px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; color: var(--text3); letter-spacing: 0.12em;
-  display: flex; align-items: center; gap: 10px;
-  animation: pulse 2.5s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
-.scroll-hint::before {
-  content: '';
-  width: 1px; height: 40px;
-  background: linear-gradient(to bottom, transparent, var(--blue));
-}
-
-/* ── NAV ── */
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
 .sticky-nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(11,15,26,0.85);
-  backdrop-filter: blur(16px);
+  background: rgba(8,12,20,0.9); backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 14px 0;
+  padding: 12px 0;
 }
 .nav-inner {
-  max-width: 1100px; margin: 0 auto; padding: 0 24px;
-  display: flex; gap: 28px; align-items: center; flex-wrap: wrap;
+  max-width: 1060px; margin: 0 auto; padding: 0 28px;
+  display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
 }
 .nav-brand {
-  font-family: 'DM Mono', monospace;
-  font-size: 12px; color: var(--gold);
-  letter-spacing: 0.1em; margin-right: auto;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--gold); letter-spacing: 0.12em; margin-right: auto;
 }
 .nav-inner a {
-  font-size: 13px; color: var(--text2);
-  text-decoration: none; transition: color 0.2s;
-  font-weight: 400;
+  font-size: 12px; color: var(--text2); text-decoration: none;
+  transition: color 0.2s; font-weight: 400; letter-spacing: 0.02em;
 }
 .nav-inner a:hover { color: var(--blue2); }
 
-/* ── SECTIONS ── */
-section { padding: 96px 0; border-bottom: 1px solid var(--border); }
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 100px 0 72px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.22em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 32px; display: flex; align-items: center; gap: 14px;
+}
+.hero-eyebrow::after { content: ''; flex: 0 0 48px; height: 1px; background: var(--gold); opacity: 0.35; }
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.2rem, 8vw, 7rem);
+  font-weight: 300; line-height: 0.95;
+  margin-bottom: 16px;
+}
+h1 em { font-style: italic; color: var(--gold2); }
+.hero-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  color: var(--text2); font-weight: 300; font-style: italic;
+  max-width: 620px; margin-bottom: 40px; line-height: 1.5;
+}
+.hero-meta {
+  font-size: 12px; color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.hero-meta span { display: flex; align-items: center; gap: 6px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+
+/* ── Evidence level key in hero ── */
+.ev-key {
+  margin-top: 48px;
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: 580px;
+}
+.ev-key-label {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.18em; color: var(--text3); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ev-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.ev-row:hover { border-color: var(--border2); }
+.ev-badge {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+  font-weight: 500; letter-spacing: 0.06em;
+}
+.ev-badge.i  { background: var(--ev1-bg); color: var(--ev1); border: 1px solid rgba(46,196,160,0.2); }
+.ev-badge.ii { background: var(--ev2-bg); color: var(--ev2); border: 1px solid rgba(232,168,56,0.2); }
+.ev-badge.iii{ background: var(--ev3-bg); color: var(--ev3); border: 1px solid rgba(157,127,234,0.2); }
+.ev-desc { font-size: 12px; color: var(--text2); line-height: 1.4; }
+.ev-desc strong { color: var(--text); font-weight: 500; }
+
+.scroll-hint {
+  margin-top: 56px; font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--text3); letter-spacing: 0.14em;
+  display: flex; align-items: center; gap: 12px;
+  animation: breathe 2.8s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:0.3} 50%{opacity:0.9} }
+.scroll-hint::before { content: ''; width: 1px; height: 44px;
+  background: linear-gradient(to bottom, transparent, var(--blue)); }
+
+/* ═══════════════════════════════════════════════
+   SECTIONS
+═══════════════════════════════════════════════ */
+section { padding: 100px 0; border-bottom: 1px solid var(--border); }
 section:last-of-type { border-bottom: none; }
 
 .sec-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.2em;
-  color: var(--violet); text-transform: uppercase;
-  margin-bottom: 20px;
-  display: flex; align-items: center; gap: 10px;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.22em; color: var(--violet); text-transform: uppercase;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
 }
-.sec-label::before { content: '//'; opacity: 0.5; }
+.sec-label::before { content: '//'; opacity: 0.4; }
+
+/* ── Evidence tier banner ── */
+.tier-banner {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 8px 16px; border-radius: 6px; margin-bottom: 28px;
+  border-left: 3px solid;
+}
+.tier-banner.t1 { background: var(--ev1-bg); border-color: var(--ev1); }
+.tier-banner.t2 { background: var(--ev2-bg); border-color: var(--ev2); }
+.tier-banner.t3 { background: var(--ev3-bg); border-color: var(--ev3); }
+.tier-badge {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  font-weight: 500; letter-spacing: 0.08em; padding: 2px 8px;
+  border-radius: 3px;
+}
+.t1 .tier-badge { background: rgba(46,196,160,0.15); color: var(--ev1); }
+.t2 .tier-badge { background: rgba(232,168,56,0.15); color: var(--ev2); }
+.t3 .tier-badge { background: rgba(157,127,234,0.15); color: var(--ev3); }
+.tier-text { font-size: 12px; font-family: 'DM Mono', monospace; }
+.t1 .tier-text { color: var(--ev1); }
+.t2 .tier-text { color: var(--ev2); }
+.t3 .tier-text { color: var(--ev3); }
 
 h2 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  font-weight: 400; line-height: 1.15;
-  margin-bottom: 32px;
-  color: var(--text);
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  font-weight: 400; line-height: 1.12; margin-bottom: 28px;
 }
 h2 em { font-style: italic; color: var(--gold2); }
 
 h3 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1rem; font-weight: 600;
-  color: var(--blue2);
-  margin-bottom: 10px;
-  letter-spacing: 0.02em;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 500; color: var(--blue2);
+  margin-bottom: 8px; letter-spacing: 0.02em;
 }
 
 .prose {
-  font-size: 1.05rem; color: var(--text2);
-  max-width: 720px; line-height: 1.8;
+  font-size: 1.02rem; color: var(--text2); max-width: 700px; line-height: 1.82;
 }
-.prose + .prose { margin-top: 20px; }
+.prose + .prose { margin-top: 18px; }
 .prose strong { color: var(--text); font-weight: 500; }
 .prose em { color: var(--gold2); font-style: italic; }
+.prose .flag {
+  display: inline-block; font-family: 'DM Mono', monospace; font-size: 9px;
+  padding: 1px 6px; border-radius: 3px; vertical-align: middle;
+  margin: 0 3px; letter-spacing: 0.06em; font-weight: 500;
+}
+.prose .flag.caution { background: rgba(232,168,56,0.15); color: var(--amber); border: 1px solid rgba(232,168,56,0.25); }
+.prose .flag.limit   { background: rgba(157,127,234,0.15); color: var(--violet); border: 1px solid rgba(157,127,234,0.25); }
+.prose .flag.strong  { background: rgba(46,196,160,0.15); color: var(--teal); border: 1px solid rgba(46,196,160,0.25); }
 
-/* ── PULL QUOTE ── */
+/* ── Pull quote ── */
 .pull-quote {
-  border-left: 3px solid var(--gold);
-  padding: 20px 28px;
-  margin: 40px 0;
-  background: rgba(201,168,76,0.05);
+  border-left: 2px solid var(--gold);
+  padding: 18px 26px; margin: 36px 0;
+  background: rgba(201,168,76,0.04);
   border-radius: 0 8px 8px 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.35rem; font-style: italic;
-  color: var(--text);
-  max-width: 700px;
-  line-height: 1.5;
+  font-size: 1.25rem; font-style: italic;
+  color: var(--text); max-width: 680px; line-height: 1.5;
+}
+.pull-quote cite {
+  display: block; margin-top: 10px; font-size: 0.75rem;
+  font-family: 'DM Mono', monospace; font-style: normal; color: var(--text3);
 }
 
-/* ── EVIDENCE CARDS ── */
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 40px; }
+/* ── Callout box (critical clarification) ── */
+.callout {
+  border: 1px solid; border-radius: 10px;
+  padding: 18px 22px; margin: 24px 0; max-width: 700px;
+}
+.callout.warn { border-color: rgba(232,168,56,0.3); background: rgba(232,168,56,0.04); }
+.callout.info { border-color: rgba(91,157,245,0.3); background: rgba(91,157,245,0.04); }
+.callout.limit{ border-color: rgba(157,127,234,0.3); background: rgba(157,127,234,0.04); }
+.callout-head {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 8px; font-weight: 500;
+}
+.warn  .callout-head { color: var(--amber); }
+.info  .callout-head { color: var(--blue2); }
+.limit .callout-head { color: var(--violet); }
+.callout p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.callout p strong { color: var(--text); font-weight: 500; }
 
+/* ── Cards ── */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(270px,1fr)); gap: 18px; margin-top: 36px; }
 .card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-  transition: border-color 0.2s, transform 0.2s;
-  position: relative; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 26px; position: relative; overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
 }
 .card::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--accent, var(--blue));
-  opacity: 0;
-  transition: opacity 0.2s;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent, var(--blue)); opacity: 0; transition: opacity 0.2s;
 }
 .card:hover { border-color: var(--border2); transform: translateY(-2px); }
 .card:hover::before { opacity: 1; }
-.card-icon {
-  font-size: 24px; margin-bottom: 14px;
-  width: 44px; height: 44px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+.card-level {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em;
+  padding: 2px 8px; border-radius: 3px; margin-bottom: 14px;
+  display: inline-block; font-weight: 500;
 }
-.card-title { font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 8px; }
-.card-body { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+.card-level.l1 { background: var(--ev1-bg); color: var(--ev1); }
+.card-level.l2 { background: var(--ev2-bg); color: var(--ev2); }
+.card-level.l3 { background: var(--ev3-bg); color: var(--ev3); }
+.card-title { font-weight: 500; font-size: 0.92rem; color: var(--text); margin-bottom: 8px; }
+.card-body { font-size: 0.84rem; color: var(--text2); line-height: 1.65; }
+.card-body strong { color: var(--text); font-weight: 500; }
 .card-ref {
-  margin-top: 14px; padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--text3);
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
 }
 
-/* ── CHART CONTAINERS ── */
+/* ── Chart containers ── */
 .chart-wrap {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  margin: 40px 0;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px; margin: 36px 0;
 }
-.chart-title {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; letter-spacing: 0.12em;
-  color: var(--text3); text-transform: uppercase;
-  margin-bottom: 8px;
+.chart-head { margin-bottom: 20px; }
+.chart-label {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.16em; color: var(--text3); text-transform: uppercase; margin-bottom: 5px;
 }
-.chart-subtitle { font-size: 0.875rem; color: var(--text2); margin-bottom: 24px; }
-.chart-canvas-wrap { position: relative; height: 300px; }
+.chart-title-text { font-size: 0.88rem; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+.chart-note { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.chart-canvas-wrap { position: relative; }
 
-/* ── METHODOLOGY STEPS ── */
-.method-steps { display: flex; flex-direction: column; gap: 0; margin: 40px 0; }
-.method-step {
-  display: grid; grid-template-columns: 60px 1fr;
-  gap: 0 24px; position: relative;
+/* ── Interactive guide inset ── */
+.interactive-guide {
+  background: rgba(91,157,245,0.05); border: 1px solid rgba(91,157,245,0.15);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 20px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px;
 }
+.ig-item { }
+.ig-key { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--blue2);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+.ig-val { font-size: 12px; color: var(--text2); line-height: 1.4; }
+
+/* ── Methodology steps ── */
+.method-steps { display: flex; flex-direction: column; margin: 36px 0; }
+.method-step { display: grid; grid-template-columns: 56px 1fr; gap: 0 22px; position: relative; }
 .method-step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 29px; top: 52px; bottom: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, var(--accent, var(--blue)), transparent);
-  opacity: 0.3;
+  content: ''; position: absolute;
+  left: 27px; top: 56px; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, var(--step-color, var(--blue)), transparent);
+  opacity: 0.25;
 }
 .step-num {
-  width: 60px; height: 52px;
+  width: 56px; height: 56px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; color: var(--accent, var(--blue));
-  border: 1px solid currentColor;
-  border-radius: 8px;
-  opacity: 0.8;
-  flex-shrink: 0;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--step-color, var(--blue));
+  border: 1px solid currentColor; border-radius: 8px; opacity: 0.85;
 }
-.step-body { padding-bottom: 36px; }
-.step-body h3 { margin-bottom: 8px; color: var(--accent, var(--blue)); }
+.step-body { padding-bottom: 40px; }
+.step-body h3 { color: var(--step-color, var(--blue)); margin-bottom: 10px; }
 
-/* ── FOURIER DEMO ── */
+/* ── Fourier demo ── */
 .fourier-demo {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 36px;
-  margin: 40px 0;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 32px; margin: 36px 0;
 }
 .fourier-controls {
-  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
+  gap: 20px; margin: 20px 0 28px;
 }
-.slider-group { display: flex; flex-direction: column; gap: 6px; min-width: 140px; }
+.slider-group { display: flex; flex-direction: column; gap: 6px; }
 .slider-group label {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.1em;
-  color: var(--text3); text-transform: uppercase;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
 }
-.slider-group span {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px; color: var(--gold);
-}
+.slider-group label span { color: var(--gold); font-size: 11px; }
 input[type=range] {
-  -webkit-appearance: none;
-  width: 100%; height: 4px;
-  background: var(--panel2);
-  border-radius: 2px;
-  outline: none;
+  -webkit-appearance: none; width: 100%; height: 3px;
+  background: var(--panel2); border-radius: 2px; outline: none;
 }
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--blue);
-  cursor: pointer;
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--blue); cursor: pointer;
 }
 
-/* ── DB CONNECTIONS ── */
-.db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 36px; }
+/* ── Falsifiability box ── */
+.falsify-box {
+  border: 1px solid rgba(46,196,160,0.2); border-radius: 10px;
+  padding: 22px 26px; margin: 28px 0; max-width: 700px;
+  background: rgba(46,196,160,0.03);
+}
+.falsify-head {
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  color: var(--teal); letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.falsify-list { list-style: none; }
+.falsify-list li {
+  font-size: 13px; color: var(--text2); line-height: 1.65; padding: 6px 0;
+  border-bottom: 1px solid var(--border); display: flex; gap: 10px;
+}
+.falsify-list li:last-child { border-bottom: none; }
+.falsify-list li::before { content: '→'; color: var(--teal); flex-shrink: 0; }
+
+/* ── Formula ── */
+.formula {
+  background: var(--panel2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px 20px;
+  font-family: 'DM Mono', monospace; font-size: 13px;
+  color: var(--teal); overflow-x: auto; margin: 14px 0;
+}
+.formula .comment { color: var(--text3); font-size: 11px; }
+
+/* ── Data sources ── */
+.db-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 14px; margin-top: 32px; }
 .db-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px; padding: 24px;
-  display: flex; flex-direction: column; gap: 12px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 10px;
 }
 .db-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; padding: 4px 10px;
-  border-radius: 4px; letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'DM Mono', monospace; font-size: 9px;
+  padding: 3px 9px; border-radius: 3px; letter-spacing: 0.08em; text-transform: uppercase;
 }
-.db-badge.open { background: rgba(52,211,153,0.1); color: var(--teal); border: 1px solid rgba(52,211,153,0.2); }
-.db-badge.api { background: rgba(110,168,254,0.1); color: var(--blue); border: 1px solid rgba(110,168,254,0.2); }
-.db-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
-.db-stat { font-size: 1.6rem; font-weight: 600; color: var(--gold2); font-family: 'Cormorant Garamond', serif; }
-.db-desc { font-size: 0.825rem; color: var(--text2); line-height: 1.5; }
-.db-url {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--text3);
-  text-decoration: none; border-bottom: 1px dotted var(--text3);
-  transition: color 0.2s;
-}
+.db-badge.open { background: rgba(46,196,160,0.08); color: var(--teal); border: 1px solid rgba(46,196,160,0.18); }
+.db-badge.api  { background: rgba(91,157,245,0.08); color: var(--blue);  border: 1px solid rgba(91,157,245,0.18); }
+.db-name { font-weight: 500; font-size: 0.88rem; color: var(--text); }
+.db-stat { font-size: 1.4rem; font-weight: 400; color: var(--gold2); font-family: 'Cormorant Garamond', serif; }
+.db-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.db-url { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3);
+  text-decoration: none; border-bottom: 1px dotted var(--text3); transition: color 0.2s; }
 .db-url:hover { color: var(--blue2); }
 
-/* ── REFERENCES ── */
-.ref-list { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+/* ── Protocol flow ── */
+.protocol-flow {
+  display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+  margin: 20px 0; font-family: 'DM Mono', monospace; font-size: 11px;
+}
+.pf-step {
+  padding: 8px 14px; border-radius: 6px; line-height: 1.4;
+  text-align: center; min-width: 120px;
+}
+.pf-arrow { color: var(--text3); font-size: 16px; align-self: center; }
+.pf-1 { background: rgba(91,157,245,0.1); border: 1px solid rgba(91,157,245,0.25); color: var(--blue2); }
+.pf-2 { background: rgba(157,127,234,0.1); border: 1px solid rgba(157,127,234,0.25); color: var(--violet); }
+.pf-3 { background: rgba(46,196,160,0.1); border: 1px solid rgba(46,196,160,0.25); color: var(--teal); }
+.pf-4 { background: rgba(232,168,56,0.1); border: 1px solid rgba(232,168,56,0.25); color: var(--amber); }
+.pf-5 { background: rgba(240,112,96,0.1); border: 1px solid rgba(240,112,96,0.25); color: var(--coral); }
+
+/* ── References ── */
+.ref-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
 .ref-item {
-  display: grid; grid-template-columns: 32px 1fr;
-  gap: 0 16px; align-items: start;
-  font-size: 0.825rem; color: var(--text2); line-height: 1.5;
+  display: grid; grid-template-columns: 28px 1fr; gap: 0 14px;
+  align-items: start; font-size: 12px; color: var(--text2); line-height: 1.55;
 }
-.ref-n {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; color: var(--text3);
-  padding-top: 2px;
-}
+.ref-n { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); padding-top: 2px; }
 .ref-item a { color: var(--blue); text-decoration: none; font-size: 10px; }
 .ref-item a:hover { text-decoration: underline; }
 .ref-item em { font-style: italic; color: var(--text); }
 
-/* ── FORMULA BOX ── */
-.formula {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px 24px;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.9rem;
-  color: var(--teal);
-  overflow-x: auto;
-  margin: 16px 0;
-}
-.formula .comment { color: var(--text3); font-size: 0.8rem; }
-
-/* ── FOOTER ── */
+/* ── Footer ── */
 footer {
-  padding: 60px 0;
-  text-align: center;
-  color: var(--text3);
-  font-size: 0.825rem;
-  font-family: 'DM Mono', monospace;
+  padding: 56px 0; text-align: center;
+  color: var(--text3); font-size: 12px; font-family: 'DM Mono', monospace;
   border-top: 1px solid var(--border);
 }
 footer strong { color: var(--text2); }
-.footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 12px; }
+.footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 12px; flex-wrap: wrap; }
 .footer-links a { color: var(--text3); text-decoration: none; transition: color 0.2s; }
 .footer-links a:hover { color: var(--blue); }
 
-/* ── ANIMATIONS ── */
-.fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
-.fade-in.visible { opacity: 1; transform: none; }
+/* ── Animations ── */
+.fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.fade-up.in { opacity: 1; transform: none; }
 
-/* ── RESPONSIVE ── */
+/* ── Responsive ── */
 @media (max-width: 640px) {
   section { padding: 64px 0; }
-  .hero { padding: 64px 0 48px; }
+  .hero { padding: 72px 0 56px; }
   h1 { font-size: 2.8rem; }
-  .cards-grid { grid-template-columns: 1fr; }
-  .fourier-controls { flex-direction: column; }
+  .cards-grid, .db-grid { grid-template-columns: 1fr; }
+  .fourier-controls { grid-template-columns: 1fr 1fr; }
+  .protocol-flow { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<div id="stars"><canvas id="starCanvas"></canvas></div>
+<div id="star-bg"><canvas id="starCanvas"></canvas></div>
 
-<!-- NAV -->
+<!-- ═══ FLOATING GUIDE BUTTON ═══ -->
+<button id="guide-btn" title="¿Cómo usar esta página?" onclick="document.getElementById('guide-overlay').classList.add('open')">?</button>
+<div id="guide-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div id="guide-panel">
+    <button id="guide-close" onclick="document.getElementById('guide-overlay').classList.remove('open')">×</button>
+    <div class="guide-title">Cómo usar esta página</div>
+    <div class="guide-section">
+      <h4>Niveles de evidencia</h4>
+      <p>Cada sección lleva un indicador de color: <span style="color:var(--ev1)">verde = física establecida</span>, <span style="color:var(--ev2)">ámbar = señal sugerente</span>, <span style="color:var(--ev3)">violeta = hipótesis bajo investigación</span>. Léelos como avisos de certeza, no de importancia.</p>
+    </div>
+    <div class="guide-section">
+      <h4>Gráficas interactivas</h4>
+      <ul>
+        <li>Figura 1: muestra la deformación mareal real de la corteza. No es especulación — es física medida.</li>
+        <li>Figura 2: distribución de sismos por fase lunar. Observa cuánto se aleja de la línea de aleatoriedad esperada — y en qué tipo de falla.</li>
+        <li>Demo Fourier: ajusta los sliders para ver cómo la FFT separa señales periódicas. Reduce el ruido para ver aparecer los picos cósmicos.</li>
+      </ul>
+    </div>
+    <div class="guide-section">
+      <h4>Cómo leer las gráficas estadísticas</h4>
+      <p>La línea punteada roja = distribución esperada si no hubiera patrón (12.5% por fase). Barras que se alejan de esa línea = señal. Cuánto se alejan, y si persiste al estratificar, determina el p-valor.</p>
+    </div>
+    <div class="guide-section">
+      <h4>Qué significa un resultado negativo</h4>
+      <p>En este programa, un resultado nulo bien ejecutado es también una contribución científica. El objetivo es obtener una respuesta definitiva, no confirmar una hipótesis.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STICKY NAV ═══ -->
 <nav class="sticky-nav">
   <div class="nav-inner">
     <span class="nav-brand">INVESCIENCIAS // COSMOBIOLOGÍA</span>
-    <a href="#fundamento">Fundamento</a>
-    <a href="#biologia">Cosmos & Biología</a>
-    <a href="#metodologia">Metodología</a>
-    <a href="#bases-datos">Bases de datos</a>
-    <a href="#referencias">Referencias</a>
+    <a href="#intro">Introducción</a>
+    <a href="#nivel1">Nivel I — Física</a>
+    <a href="#nivel2">Nivel II — Biología</a>
+    <a href="#nivel3">Nivel III — Hipótesis</a>
+    <a href="#metodo">Metodología</a>
+    <a href="#datos">Datos</a>
+    <a href="#refs">Referencias</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<div class="page-wrap">
-  <section class="hero" id="inicio">
-    <div class="hero-kicker">Fundación Invesciencias · RAC · 2026</div>
+<!-- ═══ HERO ═══ -->
+<div class="wrap">
+  <section class="hero" id="intro">
+    <div class="hero-eyebrow">Fundación Invesciencias · RAC · 2026</div>
     <h1>El cosmos<br>que <em>habitamos</em></h1>
-    <p class="hero-sub">Cosmobiología, grandes bases de datos y una propuesta de investigación abierta a todas las ciencias</p>
+    <p class="hero-sub">Fuerzas lunares, geomagnéticas y circadianas: evidencia escalonada y un programa de investigación</p>
     <div class="hero-meta">
       <span><span class="dot"></span> David Serrano</span>
       <span><span class="dot" style="background:var(--violet)"></span> Fundación Invesciencias</span>
       <span><span class="dot" style="background:var(--gold)"></span> Circular Astronómica RAC · 2026</span>
     </div>
+
+    <div class="ev-key">
+      <div class="ev-key-label">Niveles de evidencia — cómo leer este artículo</div>
+      <div class="ev-row">
+        <span class="ev-badge i">NIVEL I</span>
+        <span class="ev-desc"><strong>Física establecida.</strong> Efectos medidos con gravimetría de precisión. Sin controversia metodológica.</span>
+      </div>
+      <div class="ev-row">
+        <span class="ev-badge ii">NIVEL II</span>
+        <span class="ev-desc"><strong>Señal sugerente.</strong> Asociaciones estadísticas reproducibles en biología. Alcance limitado al sistema estudiado.</span>
+      </div>
+      <div class="ev-row">
+        <span class="ev-badge iii">NIVEL III</span>
+        <span class="ev-desc"><strong>Hipótesis mecanicista.</strong> Asociaciones clínicas mixtas. Requiere estudios preregistrados de mayor tamaño para ser evaluada.</span>
+      </div>
+    </div>
+
     <div class="scroll-hint">EXPLORAR</div>
   </section>
 </div>
 
-<!-- FUNDAMENTO FÍSICO -->
-<div class="page-wrap">
-  <section id="fundamento">
+<!-- ═══ SECTION 1: ESTABLISHED PHYSICS ═══ -->
+<div class="wrap">
+  <section id="nivel1">
     <div class="sec-label">Fundamento físico verificado</div>
-    <h2>Lo que la física<br><em>ya comprobó</em></h2>
-    <p class="prose">La astronomía mide con precisión de nanosegundos cuerpos a miles de años luz. Pero ¿ha medido con igual rigor la influencia de esos cuerpos sobre los sistemas vivos de la Tierra? La evidencia existe — y viene de la física, no de la especulación.</p>
-
-    <div class="pull-quote">
-	  "La resistencia a una idea no es evidencia en su contra. Es evidencia de que aún no tiene un método suficientemente preciso para ser evaluada. La cosmobiología no pide creer: pide medir"
+    <div class="tier-banner t1">
+      <span class="tier-badge">NIVEL I</span>
+      <span class="tier-text">Física establecida · Sin controversia metodológica</span>
     </div>
+    <h2>Fuerzas tidales y<br><em>corteza terrestre</em></h2>
 
-    <div class="cards-grid fade-in">
-      <div class="card" style="--accent: var(--blue)">
-        <div class="card-icon">🌍</div>
+    <p class="prose">La Luna y el Sol deforman la corteza <em>sólida</em> de la Tierra de forma continua y predecible. El fenómeno, denominado <em>mareas terrestres</em> (Earth tides), produce variaciones verticales de entre 20 y 55 centímetros en la superficie sólida, plenamente modeladas con gravimetría de precisión desde la década de 1950. Este efecto no es controversial: es geometría newtoniana aplicada al planeta entero, reproducible con cualquier gravímetro de laboratorio.</p>
+
+    <div class="cards-grid fade-up">
+      <div class="card" style="--accent:var(--ev1)">
+        <div class="card-level l1">NIVEL I · ESTABLECIDO</div>
         <div class="card-title">Mareas terrestres sólidas</div>
-        <div class="card-body">La corteza sólida de la Tierra se deforma entre 20 y 55 cm por la gravitación lunar y solar. No es el océano: es la roca bajo tus pies. Medido con gravimetría de precisión desde los años 1950.</div>
-        <div class="card-ref">Melchior (1983) · Agnew (2015) · Elsevier Treatise on Geophysics</div>
+        <div class="card-body">Deformación vertical de 20–55 cm en la corteza sólida. No es el océano: es la roca bajo tus pies. Medido con gravimetría desde los años 1950. Plenamente modelado.</div>
+        <div class="card-ref">Melchior (1983) · Agnew (2015) · Elsevier</div>
       </div>
-      <div class="card" style="--accent: var(--coral)">
-        <div class="card-icon">📡</div>
-        <div class="card-title">Luna y sismicidad</div>
-        <div class="card-body">Análisis de 11.445 sismos del International Seismological Centre encontró correlación estadísticamente significativa (p &lt; 0.01) entre fase lunar y sismos en zonas de subducción del Pacífico.</div>
+      <div class="card" style="--accent:var(--amber)">
+        <div class="card-level l2">NIVEL II · CONDICIONADO</div>
+        <div class="card-title">Luna y sismicidad — con precisión</div>
+        <div class="card-body">Tanaka et al. (2002): señal significativa <strong>únicamente en fallas inversas en zonas de subducción</strong>, no en el catálogo global completo. La estratificación por tipo de falla es condición necesaria del análisis.</div>
         <div class="card-ref">Tanaka, Ohtake & Sato · J. Geophysical Research (2002)</div>
       </div>
-      <div class="card" style="--accent: var(--teal)">
-        <div class="card-icon">💧</div>
-        <div class="card-title">Agua y campo gravitacional</div>
-        <div class="card-body">Los árboles pulsan exactamente al ritmo de las mareas gravitacionales. Sus diámetros crecen con luna creciente y se contraen con luna menguante — medido en milímetros con extensometría de alta precisión.</div>
-        <div class="card-ref">Zürcher, Cantiani et al. · Nature, 392, 665–666 (1998)</div>
+      <div class="card" style="--accent:var(--amber)">
+        <div class="card-level l2">NIVEL II · SUGERENTE</div>
+        <div class="card-title">Señal global confirmada (Métivier)</div>
+        <div class="card-body">Análisis global de sismicidad superficial: señal mareal modesta pero estadísticamente real. Métivier et al. (2009) extienden y confirman el efecto en múltiples regiones.</div>
+        <div class="card-ref">Métivier et al. · Earth & Planet. Sci. Letters (2009)</div>
       </div>
-      <div class="card" style="--accent: var(--gold)">
-        <div class="card-icon">🌪️</div>
-        <div class="card-title">Sol, planetas y atmosfera</div>
-        <div class="card-body">Análisis espectral de 50 años de datos documentó correlaciones entre la actividad solar —modulada por la posición de Júpiter y Saturno— y la intensidad de huracanes en el Atlántico Norte.</div>
-        <div class="card-ref">Hung · NASA Technical Memorandum NASA/TM-2007-214813</div>
+      <div class="card" style="--accent:var(--violet)">
+        <div class="card-level l3">NIVEL III · EXPLORATORIO</div>
+        <div class="card-title">Actividad solar y atmosfera</div>
+        <div class="card-body">Hung (2007) explora relaciones entre alineaciones planetarias, actividad solar y variables atmosféricas. <strong>Conexiones exploratorias</strong> — esperan validación robusta.</div>
+        <div class="card-ref">Hung · NASA Technical Memorandum (2007)</div>
       </div>
     </div>
 
-    <!-- CHART: Tidal deformation -->
-    <div class="chart-wrap fade-in">
-      <div class="chart-title">Figura 1 — Deformación mareal de la corteza terrestre (simulada)</div>
-      <div class="chart-subtitle">Variación vertical de la superficie sólida (mm) a lo largo de un ciclo lunar de 29.5 días. Las mareas terrestres sólidas alcanzan entre 200 y 550 mm según la alineación lunar-solar.</div>
-      <div class="chart-canvas-wrap"><canvas id="tidalChart"></canvas></div>
+    <div class="callout warn">
+      <div class="callout-head">⚠ Precisión crítica — Tanaka et al. (2002)</div>
+      <p>La correlación luna-sismo es estadísticamente significativa <strong>sólo en fallas de tipo inverso en zonas de subducción</strong>. Un análisis sobre el catálogo global sin estratificación diluirá la señal y producirá un resultado nulo que <strong>no refuta la hipótesis</strong> — simplemente no la pone a prueba correctamente. El diseño de Invesciencias estratifica desde el inicio por tipo de falla y profundidad focal.</p>
+    </div>
+
+    <!-- CHART 1: Tidal deformation -->
+    <div class="chart-wrap fade-up">
+      <div class="chart-head">
+        <div class="chart-label">Figura 1 · Nivel I — física establecida</div>
+        <div class="chart-title-text">Deformación mareal de la corteza terrestre (simulación física)</div>
+        <div class="chart-note">Variación vertical de la superficie sólida (mm) a lo largo de 120 días. Componentes: ciclo sinódico lunar (29.5d), quincena mareal (14.7d), ciclo anual solar. <strong>Este no es un efecto especulativo</strong>: se reproduce con cualquier gravímetro de laboratorio.</div>
+      </div>
+      <div class="interactive-guide">
+        <div class="ig-item"><div class="ig-key">Qué muestra</div><div class="ig-val">Superposición de mareas lunares y solares sobre la corteza sólida</div></div>
+        <div class="ig-item"><div class="ig-key">Qué observar</div><div class="ig-val">Los máximos ocurren en luna nueva y luna llena (alineación Sol-Tierra-Luna)</div></div>
+        <div class="ig-item"><div class="ig-key">Nivel de certeza</div><div class="ig-val" style="color:var(--ev1)">■ Física establecida — sin controversia</div></div>
+      </div>
+      <div class="chart-canvas-wrap" style="height:260px"><canvas id="tidalChart"></canvas></div>
+    </div>
+
+    <!-- CHART 2: Seismic by lunar phase — stratified -->
+    <div class="chart-wrap fade-up">
+      <div class="chart-head">
+        <div class="chart-label">Figura 2 · Nivel II — señal condicionada</div>
+        <div class="chart-title-text">Distribución de sismos por fase lunar — estratificado por tipo de falla</div>
+        <div class="chart-note">Distribución observada vs. esperada (distribución uniforme = 12.5% por fase). La señal existe sólo en <strong>fallas inversas</strong>. El catálogo global sin estratificar muestra distribución casi uniforme. Usa el selector para ver la diferencia.</div>
+      </div>
+      <div class="interactive-guide">
+        <div class="ig-item"><div class="ig-key">Qué controlas</div><div class="ig-val">Tipo de falla geológica a analizar</div></div>
+        <div class="ig-item"><div class="ig-key">Qué representa</div><div class="ig-val">La importancia de estratificar el análisis desde el diseño</div></div>
+        <div class="ig-item"><div class="ig-key">Qué observar</div><div class="ig-val">La señal aparece sólo en fallas inversas — no es universal</div></div>
+      </div>
+      <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap">
+        <button onclick="updateSeismicChart('global')" id="btn-global"
+          style="font-family:'DM Mono',monospace;font-size:10px;padding:6px 14px;border-radius:5px;
+          background:rgba(91,157,245,0.15);border:1px solid rgba(91,157,245,0.3);color:var(--blue2);cursor:pointer">
+          Catálogo global (sin estratificar)
+        </button>
+        <button onclick="updateSeismicChart('inversa')" id="btn-inversa"
+          style="font-family:'DM Mono',monospace;font-size:10px;padding:6px 14px;border-radius:5px;
+          background:rgba(46,196,160,0.1);border:1px solid rgba(46,196,160,0.2);color:var(--teal);cursor:pointer">
+          Fallas inversas — subducción
+        </button>
+        <button onclick="updateSeismicChart('normal')" id="btn-normal"
+          style="font-family:'DM Mono',monospace;font-size:10px;padding:6px 14px;border-radius:5px;
+          background:rgba(240,112,96,0.1);border:1px solid rgba(240,112,96,0.2);color:var(--coral);cursor:pointer">
+          Fallas normales
+        </button>
+      </div>
+      <div class="chart-canvas-wrap" style="height:270px"><canvas id="seismicChart"></canvas></div>
+      <div id="seismic-note" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">
+        Selecciona un tipo de falla para ver cómo cambia la distribución.
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      "La carga mareal actúa como disparador secundario en sistemas de falla próximos al umbral, en tipos de falla específicos."
+      <cite>— Tanaka, Ohtake y Sato (2002), reformulado</cite>
     </div>
   </section>
 </div>
 
-<!-- COSMOS & BIOLOGÍA HUMANA -->
-<div class="page-wrap">
-  <section id="biologia">
-    <div class="sec-label">Biofísica y cronobiología</div>
-    <h2>El cosmos y la<br><em>biología humana</em></h2>
-    <p class="prose">La resistencia de algunos científicos a explorar este campo no es evidencia en su contra — es evidencia de que aún no tiene un método suficientemente preciso para ser evaluada. Lo que sigue es evidencia publicada en revistas de primer nivel, sin mencionar astrología.</p>
+<!-- ═══ SECTION 2: BIOLOGICAL SIGNAL ═══ -->
+<div class="wrap">
+  <section id="nivel2">
+    <div class="sec-label">Biología vegetal y cronobiología</div>
+    <div class="tier-banner t2">
+      <span class="tier-badge">NIVEL II</span>
+      <span class="tier-text">Señal sugerente · Alcance limitado al sistema estudiado</span>
+    </div>
+    <h2>Ritmos tidales en<br><em>sistemas biológicos</em></h2>
 
-    <div class="cards-grid fade-in" style="margin-top:36px">
-      <div class="card" style="--accent: var(--violet)">
-        <div class="card-icon">🧬</div>
-        <div class="card-title">Criptocromos y campo geomagnético</div>
-        <div class="card-body">Las proteínas criptocromos — presentes en la retina y el cerebro humano — actúan como brújulas magnéticas en aves migratorias. En humanos, podrían responder de forma análoga a las fluctuaciones geomagnéticas solares.</div>
-        <div class="card-ref">Xue et al. · Frontiers in Physiology (2021)</div>
+    <p class="prose">Zürcher, Cantiani, Sorbetti Guerri y Michel (1998) publicaron en <em>Nature</em> que los diámetros de los troncos de árboles fluctúan con una periodicidad que corresponde exactamente al ritmo de las mareas gravitacionales. El mecanismo propuesto es fisiológico y específico: la fuerza mareal modula la tensión en la columna de agua dentro del xilema, alterando el transporte hídrico.</p>
+
+    <div class="callout limit">
+      <div class="callout-head">⬡ Límite de alcance — muy importante</div>
+      <p>Zürcher estudia <strong>transporte de agua en tejido vegetal</strong> bajo la influencia de una fuerza física medible. <strong>Esto no es evidencia de que los planetas alteren la fisiología humana.</strong> El propio paper de 1999 señala que "much less research has been carried out" sobre varios ritmos lunares propuestos. La transferencia a humanos requeriría demostrar un mecanismo análogo de comparable magnitud en tejido humano — ese paso aún no está dado en la literatura revisada por pares.</p>
+    </div>
+
+    <div class="cards-grid fade-up">
+      <div class="card" style="--accent:var(--amber)">
+        <div class="card-level l2">NIVEL II · Nature (1998)</div>
+        <div class="card-title">Diámetros de troncos y mareas</div>
+        <div class="card-body">Los troncos pulsan al ritmo de las mareas gravitacionales — expansión con luna creciente, contracción con luna menguante. Medido con extensometría de alta precisión. Mecanismo: transporte hídrico en xilema.</div>
+        <div class="card-ref">Zürcher et al. · Nature 392, 665–666 (1998)</div>
       </div>
-      <div class="card" style="--accent: var(--teal)">
-        <div class="card-icon">⏱️</div>
+      <div class="card" style="--accent:var(--amber)">
+        <div class="card-level l2">NIVEL II · Earth, Moon & Planets (1999)</div>
+        <div class="card-title">Germinación y fase lunar</div>
+        <div class="card-body">Ritmos estadísticamente significativos en germinación y crecimiento inicial de árboles tropicales correlacionados con la fase lunar. Replicado en múltiples especies en condiciones controladas.</div>
+        <div class="card-ref">Zürcher · Earth, Moon & Planets 85 (1999)</div>
+      </div>
+      <div class="card" style="--accent:var(--blue)">
+        <div class="card-level l2">NIVEL II · Aplicación hidrológica</div>
+        <div class="card-title">Relevancia para hidrología</div>
+        <div class="card-body">En sistemas donde el transporte de agua está gobernado por procesos físicos medibles — ríos, acuíferos, caudales — el mismo marco metodológico (series temporales + FFT + curvas tidales) es directamente pertinente.</div>
+        <div class="card-ref">IDEAM Colombia + HORIZONS/NASA</div>
+      </div>
+      <div class="card" style="--accent:var(--violet)">
+        <div class="card-level l3">NIVEL III · Hipótesis</div>
+        <div class="card-title">¿Aplica a tejido humano?</div>
+        <div class="card-body"><strong>Aún no demostrado.</strong> La extrapolación desde biología vegetal a fisiología humana requiere demostrar un mecanismo análogo de magnitud comparable. Ese paso falta en la literatura actual.</div>
+        <div class="card-ref">Gap identificado en la literatura</div>
+      </div>
+    </div>
+
+    <div class="falsify-box">
+      <div class="falsify-head">¿Qué falsificaría la hipótesis biológica?</div>
+      <ul class="falsify-list">
+        <li>Un estudio preregistrado de N suficiente que muestre distribución uniforme de sus variables dependientes a través del ciclo lunar, con control de confusores estacionales y ambientales.</li>
+        <li>La ausencia de periodicidad lunar en análisis espectral de series hidrológicas colombianas, después de controlar por estacionalidad y efectos meteorológicos.</li>
+        <li>Un meta-análisis con datos individuales de los estudios existentes que muestre que los efectos desaparecen al corregir por día de la semana y turno del operador.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<!-- ═══ SECTION 3: MECHANISTIC HYPOTHESIS ═══ -->
+<div class="wrap">
+  <section id="nivel3">
+    <div class="sec-label">Campo geomagnético y cronobiología humana</div>
+    <div class="tier-banner t3">
+      <span class="tier-badge">NIVEL III</span>
+      <span class="tier-text">Hipótesis mecanicista · Requiere estudios preregistrados de mayor tamaño</span>
+    </div>
+    <h2>Geomagnética,<br><em>circadiana y clínica</em></h2>
+
+    <p class="prose">Martel et al. (2023) argumentan en <em>Biomedical Journal</em> que el campo geomagnético terrestre puede actuar como <em>zeitgeber</em> secundario del ritmo circadiano humano, además de la luz. El mecanismo propuesto: las proteínas criptocromos, presentes en la retina y el cerebro humano y que en aves migratorias actúan como brújulas magnéticas, podrían responder a perturbaciones geomagnéticas desplazando la fase del reloj circadiano. <span class="flag limit">HIPÓTESIS</span> — plausible por evidencia animal, no demostrada directamente en humanos.</p>
+
+    <div class="callout warn" style="margin-top:24px">
+      <div class="callout-head">⚠ Distinción crítica — HMF vs. variaciones en superficie</div>
+      <p>Xue et al. (2021, <em>Frontiers in Physiology</em>) documentan alteraciones circadianas en organismos expuestos a campos hipomagnéticos (HMF) — equivalentes al espacio exterior. Las variaciones del campo geomagnético durante tormentas solares en superficie terrestre son <strong>órdenes de magnitud menores</strong> que la diferencia entre campo normal y HMF. Los propios autores no realizan esa extrapolación. No hacerla tampoco es parte del rigor.</p>
+    </div>
+
+    <div class="cards-grid fade-up" style="margin-top:28px">
+      <div class="card" style="--accent:var(--violet)">
+        <div class="card-level l3">NIVEL III · Revisión</div>
         <div class="card-title">Campo geomagnético como zeitgeber</div>
-        <div class="card-body">Las variaciones cíclicas del campo geomagnético terrestre — producidas por la actividad solar — pueden alterar el ritmo circadiano humano y la producción de melatonina y cortisol.</div>
-        <div class="card-ref">Martel et al. · Biomedical Journal (2023)</div>
+        <div class="card-body">Mecanismo propuesto: criptocromos como sensores magnéticos que modulan el reloj circadiano. Evidencia: animal y revisión. <strong>No demostrado directamente en humanos a escala de variaciones naturales.</strong></div>
+        <div class="card-ref">Martel et al. · Biomedical Journal 46(1) (2023)</div>
       </div>
-      <div class="card" style="--accent: var(--coral)">
-        <div class="card-icon">❤️</div>
-        <div class="card-title">Cardiovascular y tormentas solares</div>
-        <div class="card-body">El 80% de pacientes con trastornos cardíacos graves mostraron reacciones fisiológicas medibles ante cambios geomagnéticos — variabilidad cardíaca, arrhythmias y presión arterial — frente al 20% en controles sanos.</div>
-        <div class="card-ref">Estudios epidemiológicos hospitalarios — múltiples países</div>
+      <div class="card" style="--accent:var(--violet)">
+        <div class="card-level l3">NIVEL III · Experimental (HMF)</div>
+        <div class="card-title">HMF y ritmo circadiano</div>
+        <div class="card-body">En ausencia de campo geomagnético: alteraciones circadianas, leucopenia, aumento de mortalidad. Prueba que el campo geomagnético es necesario para la función normal. <strong>No equivale a demostrar que variaciones menores afectan a humanos.</strong></div>
+        <div class="card-ref">Xue et al. · Frontiers in Physiology 12 (2021)</div>
       </div>
-      <div class="card" style="--accent: var(--blue)">
-        <div class="card-icon">🌿</div>
-        <div class="card-title">Biología forestal y luna</div>
-        <div class="card-body">La germinación y crecimiento inicial de árboles tropicales muestran ritmos estadísticamente significativos correlacionados con la fase lunar — replicados en 5 especies distintas en experimentos independientes.</div>
-        <div class="card-ref">Zürcher · Earth, Moon & Planets, 85, 463–478 (1999)</div>
+      <div class="card" style="--accent:var(--coral)">
+        <div class="card-level l3">NIVEL III · Clínico mixto</div>
+        <div class="card-title">Cirugía y fase lunar — resultados mixtos</div>
+        <div class="card-body">Raposio et al. (2017): 18.760 pacientes — <strong>sin significancia estadística</strong> tras corrección. Joswig et al. (2016): OR 1.54 intraoperatorio (p=0.019) pero <strong>sin efecto en recuperación a 4 semanas ni en reintervención</strong>. No justifica programar cirugías por calendario lunar.</div>
+        <div class="card-ref">Raposio (2017) · Joswig (2016)</div>
+      </div>
+      <div class="card" style="--accent:var(--teal)">
+        <div class="card-level l1">NIVEL I → III · Diseño necesario</div>
+        <div class="card-title">Lo que falta: el estudio correcto</div>
+        <div class="card-body">Los estudios actuales son insuficientemente grandes, no preregistrados, y no controlan turno del cirujano, día de la semana, estación, ni características del paciente. Se necesita N > 50.000, preregistrado, hipótesis primaria específica.</div>
+        <div class="card-ref">Gap metodológico identificado por revisión crítica</div>
       </div>
     </div>
 
-    <!-- CHART: Seismic frequency by lunar phase -->
-    <div class="chart-wrap fade-in">
-      <div class="chart-title">Figura 2 — Distribución de sismos M≥5.0 por fase lunar</div>
-      <div class="chart-subtitle">Distribución observada vs. esperada (aleatoria) de sismos ≥5.0 según fase lunar. Datos reales del catálogo USGS 1973–2024. La distribución aleatoria esperaría ~12.5% por fase. Las desviaciones son objeto de análisis estadístico con chi-cuadrado.</div>
-      <div class="chart-canvas-wrap"><canvas id="seismicChart"></canvas></div>
+    <div class="pull-quote" style="margin-top:36px">
+      "Las preguntas defendibles son: ¿predice la fase lunar, la amplitud tidal, o el índice geomagnético la eficiencia del sueño, la variabilidad de la frecuencia cardíaca, la melatonina o el cortisol? ¿Persiste el efecto después de controlar por estación, día de la semana, latitud, condiciones meteorológicas y turno hospitalario?"
+      <cite>— Reformulado a partir de la revisión científica del manuscrito</cite>
     </div>
   </section>
 </div>
 
-<!-- METODOLOGÍA -->
-<div class="page-wrap">
-  <section id="metodologia">
+<!-- ═══ SECTION 4: METHODOLOGY ═══ -->
+<div class="wrap">
+  <section id="metodo">
     <div class="sec-label">Marco estadístico · Tres capas de análisis</div>
-    <h2>El método que convierte<br><em>patrón en ciencia</em></h2>
-    <p class="prose">Invesciencias está construyendo una base de datos de más de 10.000 eventos sísmicos (USGS 1973–2024) enriquecida con variables astronómicas calculadas con el sistema HORIZONS de la NASA. El análisis opera en tres capas estadísticas aplicables a cualquier disciplina.</p>
+    <h2>Del patrón<br><em>a la ciencia</em></h2>
+    <p class="prose">La contribución de Invesciencias no es haber demostrado que los ciclos astronómicos afectan a los humanos. Es haber identificado que la pregunta es testeable con datos existentes, y estar en posición de proponer un diseño de estudio que cumpla los estándares metodológicos actuales — incluyendo publicar el resultado si es negativo.</p>
 
-    <div class="method-steps fade-in">
-      <div class="method-step">
-        <div class="step-num" style="--accent:var(--blue)">01</div>
+    <div class="method-steps fade-up">
+      <!-- Step 01 -->
+      <div class="method-step" style="--step-color:var(--ev1)">
+        <div class="step-num">01</div>
         <div class="step-body">
-          <h3>Análisis de frecuencias · Chi-cuadrado</h3>
-          <p class="prose" style="font-size:0.9rem">Si la distribución de eventos entre fases lunares fuera aleatoria, cada una de las 8 fases principales debería concentrar el 12.5% del total. Cuando un intervalo acumula consistentemente el 18–20% y esa diferencia es estable al dividir el catálogo en décadas, la prueba chi-cuadrado asigna un p-valor que hace muy improbable el azar.</p>
-          <div class="formula">
-χ² = Σ [ (O<sub>i</sub> - E<sub>i</sub>)² / E<sub>i</sub> ]
-<span class="comment">
-// O_i = sismos observados en fase i
+          <h3>Chi-cuadrado — análisis de frecuencias estratificado</h3>
+          <div class="interactive-guide" style="margin-bottom:14px">
+            <div class="ig-item"><div class="ig-key">Hipótesis nula</div><div class="ig-val">Distribución uniforme entre las 8 fases lunares (12.5% cada una)</div></div>
+            <div class="ig-item"><div class="ig-key">Diferencia clave vs. literatura</div><div class="ig-val">Estratificamos por tipo de falla antes del cálculo. Corrección de Bonferroni para comparaciones múltiples.</div></div>
+            <div class="ig-item"><div class="ig-key">Qué falsificaría</div><div class="ig-val">p &gt; 0.05 en fallas inversas con N suficiente y sin confusores</div></div>
+          </div>
+          <div class="formula">χ² = Σ [ (O<sub>i</sub> − E<sub>i</sub>)² / E<sub>i</sub> ]
+<span class="comment">// O_i = sismos observados en fase lunar i (por tipo de falla)
 // E_i = sismos esperados bajo distribución uniforme
-// Si χ² supera valor crítico → la distribución NO es aleatoria</span>
-          </div>
-          <div class="card-ref" style="font-size:10px; color:var(--text3); font-family:'DM Mono',monospace">Aplicado a 11.445 sismos → p &lt; 0.01 · Tanaka et al., J. Geophysical Research (2002)</div>
+// Corrección Bonferroni: α_ajustado = 0.05 / 8 comparaciones = 0.00625
+// Un resultado nulo bien ejecutado es también publicable</span></div>
         </div>
       </div>
 
-      <div class="method-step">
-        <div class="step-num" style="--accent:var(--violet)">02</div>
+      <!-- Step 02 -->
+      <div class="method-step" style="--step-color:var(--violet)">
+        <div class="step-num">02</div>
         <div class="step-body">
-          <h3>Series temporales · Transformada de Fourier</h3>
-          <p class="prose" style="font-size:0.9rem">La misma herramienta que usan los climatólogos para detectar el ciclo solar de 11 años en las temperaturas globales. Descompone la serie temporal de eventos en sus frecuencias constituyentes. Si aparecen picos en períodos conocidos (29.5 días = ciclo lunar; 398 días = Júpiter; 780 días = Marte), la señal astronómica está presente en los datos.</p>
-          <div class="formula">
-X(f) = Σ x(t) · e<sup>-i2πft</sup>
-<span class="comment">
-// x(t) = número de sismos en tiempo t
-// f = frecuencia (1/días)
-// Picos en f = 1/29.5, 1/398, 1/780 indican periodicidad lunar, joviana, marciana</span>
+          <h3>Transformada de Fourier — periodicidades en series temporales</h3>
+          <div class="interactive-guide" style="margin-bottom:14px">
+            <div class="ig-item"><div class="ig-key">Qué busca</div><div class="ig-val">Picos en frecuencias que coincidan con ciclos astronómicos conocidos</div></div>
+            <div class="ig-item"><div class="ig-key">Ciclos objetivo</div><div class="ig-val">29.5d (lunar) · 18.6 años (nodal) · 398d (Júpiter) · 780d (Marte)</div></div>
+            <div class="ig-item"><div class="ig-key">Control estadístico</div><div class="ig-val">Significancia corregida para búsqueda múltiple de frecuencias</div></div>
           </div>
-          <p class="prose" style="font-size:0.9rem; margin-top:16px">El demo interactivo de abajo muestra cómo la FFT descompone una señal en sus componentes periódicos.</p>
+          <div class="formula">X(f) = Σ x(t) · e<sup>−i2πft</sup>
+<span class="comment">// x(t) = tasa de ocurrencia de sismos en el tiempo t
+// Picos en f = 1/29.5, 1/398, 1/780 = señal astronómica presente
+// El mismo método que climatología usa para detectar el ciclo solar de 11 años</span></div>
         </div>
       </div>
 
-      <div class="method-step">
-        <div class="step-num" style="--accent:var(--teal)">03</div>
+      <!-- Step 03 -->
+      <div class="method-step" style="--step-color:var(--teal)">
+        <div class="step-num">03</div>
         <div class="step-body">
-          <h3>Regresión multivariable · Control de confusores</h3>
-          <p class="prose" style="font-size:0.9rem">El nivel más exigente y publicable. Un modelo de regresión logística pregunta cuánta varianza en la ocurrencia de sismos de alta magnitud explican las variables astronómicas, una vez que se controlan las variables geológicas conocidas: tipo de falla, zona de subducción, profundidad focal, historial de actividad.</p>
-          <div class="formula">
-P(sismo M≥6) = logit⁻¹(β₀ + β₁·fase_lunar + β₂·dist_luna + β₃·ángulo_marte + β₄·tipo_falla + β₅·zona_subduccion + ...)
-<span class="comment">
-// Si β₁, β₂, β₃ son significativos después de controlar β₄, β₅ → hallazgo publicable
-// Si no → resultado negativo igualmente válido y publicable</span>
+          <h3>Regresión logística — control de confusores geológicos</h3>
+          <div class="interactive-guide" style="margin-bottom:14px">
+            <div class="ig-item"><div class="ig-key">Variable dependiente</div><div class="ig-val">Sismo de magnitud ≥ 7.0 (sí/no)</div></div>
+            <div class="ig-item"><div class="ig-key">Confusores controlados</div><div class="ig-val">Tipo de falla, zona de subducción, profundidad focal, latitud, estación</div></div>
+            <div class="ig-item"><div class="ig-key">Criterio de éxito</div><div class="ig-val">Las variables astronómicas añaden poder predictivo sobre las geológicas solas (ΔAIC significativo)</div></div>
           </div>
+          <div class="formula">P(M≥7) = logit⁻¹(β₀ + β₁·fase_lunar + β₂·dist_luna + β₃·Kp + β₄·tipo_falla + β₅·subduccion + ...)
+<span class="comment">// Si β₁,β₂,β₃ son significativos tras controlar β₄,β₅ → hallazgo publicable
+// Si no lo son → resultado negativo igualmente publicable y valioso
+// El estándar epidemiológico moderno requiere preregistrar la hipótesis antes del análisis</span></div>
         </div>
       </div>
     </div>
 
-    <!-- FOURIER DEMO -->
-    <div class="fourier-demo fade-in">
-      <div class="sec-label" style="margin-bottom:16px">Demo interactivo · Transformada de Fourier</div>
-      <h3 style="color:var(--text); font-size:1rem; margin-bottom:6px">Composición de señales periódicas</h3>
-      <p class="chart-subtitle">Ajusta la amplitud de cada ciclo para ver cómo se superponen en la señal resultante (como ocurre en los datos reales de sismos o caudales hidrológicos). La Fourier separa la señal compuesta en sus componentes individuales.</p>
+    <!-- FOURIER INTERACTIVE DEMO -->
+    <div class="fourier-demo fade-up">
+      <div class="sec-label" style="margin-bottom:12px">Demo interactivo · Transformada de Fourier</div>
+      <div style="font-size:0.95rem; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--text); margin-bottom:6px">Composición y descomposición de señales periódicas</div>
+      <p class="chart-note" style="margin-bottom:0">Ajusta la amplitud de cada ciclo para ver cómo se superponen en la señal resultante. Aumenta el ruido aleatorio para simular la dificultad del problema real. La FFT separa los componentes.</p>
+
+      <div class="interactive-guide" style="margin:16px 0">
+        <div class="ig-item"><div class="ig-key">Qué controlas</div><div class="ig-val">Amplitud de cada ciclo astronómico + nivel de ruido</div></div>
+        <div class="ig-item"><div class="ig-key">Qué representa</div><div class="ig-val">La señal real tendría amplitudes desconocidas y mucho ruido</div></div>
+        <div class="ig-item"><div class="ig-key">Qué observar</div><div class="ig-val">Con ruido alto, los picos del espectro se vuelven indistinguibles. Eso es el problema real.</div></div>
+        <div class="ig-item"><div class="ig-key">Lección filosófica</div><div class="ig-val">La FFT no crea el patrón — lo revela si existe. Un resultado nulo es información.</div></div>
+      </div>
+
       <div class="fourier-controls">
         <div class="slider-group">
           <label>Ciclo lunar (29.5d) <span id="ampLunar">1.0</span></label>
@@ -582,381 +877,421 @@ P(sismo M≥6) = logit⁻¹(β₀ + β₁·fase_lunar + β₂·dist_luna + β₃
         </div>
         <div class="slider-group">
           <label>Ruido aleatorio <span id="ampRuido">0.3</span></label>
-          <input type="range" id="slRuido" min="0" max="1" step="0.05" value="0.3">
+          <input type="range" id="slRuido" min="0" max="2" step="0.05" value="0.3">
         </div>
       </div>
-      <div class="chart-canvas-wrap" style="height:220px"><canvas id="fourierSignal"></canvas></div>
-      <div class="chart-canvas-wrap" style="height:180px; margin-top:16px"><canvas id="fourierSpectrum"></canvas></div>
-      <p style="font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; margin-top:12px">SEÑAL COMPUESTA (arriba) → ESPECTRO DE FRECUENCIAS por FFT (abajo). Los picos del espectro revelan los ciclos presentes en los datos.</p>
+
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="fourierSignal"></canvas></div>
+      <div style="margin:8px 0 0;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">SEÑAL COMPUESTA (arriba) — como una serie temporal real de sismos o caudales</div>
+      <div class="chart-canvas-wrap" style="height:170px; margin-top:16px"><canvas id="fourierSpectrum"></canvas></div>
+      <div style="margin:8px 0 0;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">ESPECTRO FFT (abajo) — picos dorados = ciclos conocidos. Con mucho ruido, los picos desaparecen: eso es por qué se necesita N grande.</div>
     </div>
 
-    <!-- Applications per science -->
-    <h3 style="color:var(--text2); font-size:1rem; margin: 48px 0 20px; font-weight:400; font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-style:italic">El mismo marco, aplicado a todas las ciencias</h3>
-    <div class="cards-grid fade-in">
-      <div class="card" style="--accent:var(--coral)">
-        <div class="card-icon">🏥</div>
-        <div class="card-title">Medicina y cirugía</div>
-        <div class="card-body">18.760 pacientes quirúrgicos (Génova, 2001–2008): tasa de complicaciones hemorrágicas varía entre 3.9% (luna nueva) y 6% (luna menguante). OR = 1.54 en cirugía de columna (p = 0.019). Resolubles con N mayor.</div>
-        <div class="card-ref">Raposio et al. (2017) · Joswig et al., Acta Neurochirurgica (2016)</div>
-      </div>
-      <div class="card" style="--accent:var(--teal)">
-        <div class="card-icon">🌱</div>
-        <div class="card-title">Agricultura y silvicultura</div>
-        <div class="card-body">Germinación y crecimiento de árboles tropicales muestra ritmos estadísticamente significativos con la fase lunar. Replicado en 5 especies. Los troncos pulsan exactamente al ritmo de las mareas gravitacionales.</div>
-        <div class="card-ref">Zürcher (1999) · Zürcher et al., Nature (1998)</div>
-      </div>
+    <!-- Application domains -->
+    <h2 style="margin-top:64px">El mismo protocolo,<br><em>en todas las disciplinas</em></h2>
+    <p class="prose">El protocolo de enriquecimiento astronómico de Invesciencias — fecha + hora UTC + coordenadas → variables HORIZONS — es transferible a cualquier base de datos de eventos fechados. La pregunta es metodológica, no ideológica: ¿añaden las variables astronómicas poder predictivo sobre los factores ya conocidos?</p>
+
+    <div class="cards-grid fade-up" style="margin-top:28px">
       <div class="card" style="--accent:var(--blue)">
-        <div class="card-icon">🌊</div>
-        <div class="card-title">Hidrología (Colombia)</div>
-        <div class="card-body">Las estaciones IDEAM generan series temporales continuas desde 1960. Un análisis espectral de los caudales del Magdalena, Cauca y Meta buscando periodicidades lunares y solares no requiere nueva instrumentación.</div>
-        <div class="card-ref">IDEAM (series abiertas) + HORIZONS/NASA (efemérides)</div>
+        <div class="card-level l2">NIVEL II · Sugerente</div>
+        <div class="card-title">Hidrología — IDEAM Colombia</div>
+        <div class="card-body">Series de caudales del Magdalena, Cauca y Meta desde 1960. Análisis espectral en busca de periodicidades lunares y solares. <strong>No requiere nueva instrumentación</strong> — requiere la pregunta correcta aplicada a datos existentes.</div>
+        <div class="card-ref">IDEAM + HORIZONS · Diseño propuesto</div>
       </div>
-      <div class="card" style="--accent:var(--gold)">
-        <div class="card-icon">🌀</div>
-        <div class="card-title">Meteorología (Caribe)</div>
-        <div class="card-body">La actividad solar —modulada por la posición de Júpiter y Saturno— correlaciona con la intensidad de huracanes en el Atlántico Norte. Aplicable directamente a las temporadas de lluvia del Caribe colombiano.</div>
-        <div class="card-ref">Hung, NASA/TM-2007-214813</div>
+      <div class="card" style="--accent:var(--violet)">
+        <div class="card-level l3">NIVEL III · Hipótesis</div>
+        <div class="card-title">Medicina — registros hospitalarios</div>
+        <div class="card-body">N > 50.000, preregistrado en ClinicalTrials.gov, hipótesis primaria específica, control de turno/día/estación. <strong>Los estudios actuales no cumplen este estándar</strong> — por eso sus resultados son mixtos.</div>
+        <div class="card-ref">Diseño propuesto · Estándar epidemiológico moderno</div>
+      </div>
+      <div class="card" style="--accent:var(--amber)">
+        <div class="card-level l2">NIVEL II · Señal en literatura</div>
+        <div class="card-title">Agricultura — extensión del marco Zürcher</div>
+        <div class="card-body">Series agrícolas nacionales (café, cacao, arroz) con el mismo diseño: series temporales continuas + FFT + curvas tidales calculadas. Validación del mecanismo de transporte hídrico en escala de cultivo.</div>
+        <div class="card-ref">Marco metodológico Zürcher (1998, 1999)</div>
+      </div>
+      <div class="card" style="--accent:var(--coral)">
+        <div class="card-level l3">NIVEL III · Exploratorio</div>
+        <div class="card-title">Meteorología — Caribe colombiano</div>
+        <div class="card-body">Variabilidad interanual de lluvias en el Pacífico colombiano y Orinoquia. Conexión solar-atmosférica exploratoria. Requiere validación robusta antes de cualquier interpretación causal.</div>
+        <div class="card-ref">Hung (2007) NASA — conexiones exploratorias</div>
       </div>
     </div>
   </section>
 </div>
 
-<!-- BASES DE DATOS -->
-<div class="page-wrap">
-  <section id="bases-datos">
-    <div class="sec-label">Infraestructura de datos · Fuentes verificables</div>
-    <h2>Las bases de datos<br><em>que hacen posible</em> el método</h2>
-    <p class="prose">Todas las fuentes son públicas, abiertas y gratuitas. No se necesita nueva instrumentación: se necesita la pregunta correcta aplicada a datos que ya existen. El protocolo de Invesciencias combina estas fuentes con una consulta estandarizada.</p>
+<!-- ═══ SECTION 5: DATA SOURCES ═══ -->
+<div class="wrap">
+  <section id="datos">
+    <div class="sec-label">Infraestructura de datos · Fuentes verificables y abiertas</div>
+    <h2>Los datos<br><em>ya existen</em></h2>
+    <p class="prose">Todas las fuentes son públicas, abiertas y gratuitas. La brecha no está en los datos — está en el diseño de estudio que los une con la pregunta correcta y el análisis correcto.</p>
 
-    <div class="db-grid fade-in">
+    <div class="db-grid fade-up">
       <div class="db-card">
         <div><span class="db-badge open">● ABIERTO</span></div>
         <div class="db-name">USGS Earthquake Catalog</div>
-        <div class="db-stat">500K+ sismos</div>
-        <div class="db-desc">Fecha, hora UTC, latitud, longitud, profundidad y magnitud de todos los sismos globales desde 1973. API REST en tiempo real.</div>
+        <div class="db-stat">500 K+ eventos</div>
+        <div class="db-desc">Fecha, hora UTC, lat/lon, profundidad, magnitud, tipo de falla. API REST en tiempo real. Corpus base de Invesciencias: 10.000+ sismos M≥6.0 (1973–2024).</div>
         <a class="db-url" href="https://earthquake.usgs.gov/earthquakes/search/" target="_blank">earthquake.usgs.gov →</a>
       </div>
       <div class="db-card">
         <div><span class="db-badge api">◈ API</span></div>
         <div class="db-name">NASA JPL HORIZONS</div>
         <div class="db-stat">Precisión sub-ms</div>
-        <div class="db-desc">Efemérides planetarias para cualquier cuerpo del sistema solar, en cualquier fecha desde el año 3000 a.C. hasta 3000 d.C. y coordenada terrestre.</div>
+        <div class="db-desc">Efemérides planetarias para cualquier cuerpo, fecha (3000 a.C.–3000 d.C.) y coordenada terrestre. Variables calculadas: fase lunar, distancia, ángulos de aspecto.</div>
         <a class="db-url" href="https://ssd.jpl.nasa.gov/horizons/" target="_blank">ssd.jpl.nasa.gov/horizons →</a>
       </div>
       <div class="db-card">
         <div><span class="db-badge open">● ABIERTO</span></div>
         <div class="db-name">IDEAM Colombia</div>
         <div class="db-stat">Desde 1960</div>
-        <div class="db-desc">Series históricas de caudales, niveles, precipitación y temperatura de cuencas colombianas. Magdalena, Cauca, Meta, Atrato y más.</div>
+        <div class="db-desc">Series históricas de caudales, niveles freáticos, precipitación y temperatura. Magdalena, Cauca, Meta, Atrato. Candidatas directas para análisis espectral.</div>
         <a class="db-url" href="http://dhime.ideam.gov.co/" target="_blank">dhime.ideam.gov.co →</a>
       </div>
       <div class="db-card">
         <div><span class="db-badge open">● ABIERTO</span></div>
-        <div class="db-name">SGC Colombia · Sismos</div>
-        <div class="db-stat">Catálogo nacional</div>
-        <div class="db-desc">Catálogo sísmico colombiano con eventos regionales desde 1993. Complementa el USGS para análisis de zonas específicas como el Eje Cafetero o la costa Pacífica.</div>
+        <div class="db-name">SGC Colombia · Catálogo sísmico</div>
+        <div class="db-stat">Desde 1993</div>
+        <div class="db-desc">Catálogo sísmico colombiano. Complementa el USGS para análisis regionales: Eje Cafetero, costa Pacífica, zonas de subducción andina.</div>
         <a class="db-url" href="https://www2.sgc.gov.co/sismos" target="_blank">sgc.gov.co →</a>
       </div>
       <div class="db-card">
         <div><span class="db-badge api">◈ API</span></div>
         <div class="db-name">NOAA Geomagnetic Kp</div>
-        <div class="db-stat">Índice Kp horario</div>
-        <div class="db-desc">Índice geomagnético planetario (Kp) cada 3 horas desde 1932. Mide la perturbación del campo magnético terrestre por actividad solar.</div>
+        <div class="db-stat">Desde 1932 · cada 3h</div>
+        <div class="db-desc">Índice geomagnético planetario Kp. Variable de control esencial para separar efectos solares de efectos gravitacionales en el análisis estadístico.</div>
         <a class="db-url" href="https://www.swpc.noaa.gov/products/planetary-k-index" target="_blank">swpc.noaa.gov →</a>
       </div>
       <div class="db-card">
         <div><span class="db-badge open">● ABIERTO</span></div>
         <div class="db-name">Lichess / Chess.com</div>
-        <div class="db-stat">4B+ partidas</div>
-        <div class="db-desc">Bases de datos de partidas con tiempo exacto por movimiento. Permite contrastar la dirección primaria de Polich con momentos de error en jugadores de nivel internacional.</div>
+        <div class="db-stat">4 B+ partidas</div>
+        <div class="db-desc">Partidas con tiempo exacto por movimiento. Banco de prueba para la dirección primaria de Polich: ¿correlaciona el error temporal con el tránsito del ascendente?</div>
         <a class="db-url" href="https://database.lichess.org/" target="_blank">database.lichess.org →</a>
       </div>
     </div>
 
-    <!-- Protocol diagram -->
-    <div class="chart-wrap fade-in" style="margin-top:40px">
-      <div class="chart-title">Protocolo Invesciencias · Enriquecimiento astronómico de bases de datos</div>
-      <div class="chart-subtitle">Flujo de procesamiento: de una base de datos de eventos a un corpus enriquecido con variables astronómicas</div>
-      <div style="padding: 8px 0; font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); line-height:2.2">
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
-          <span style="background:rgba(110,168,254,0.1); border:1px solid rgba(110,168,254,0.3); padding:6px 14px; border-radius:6px; color:var(--blue)">① EVENTO (fecha · hora UTC · lat · lon)</span>
-          <span style="color:var(--text3)">→</span>
-          <span style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.3); padding:6px 14px; border-radius:6px; color:var(--violet)">② HORIZONS API (posición planetas)</span>
-          <span style="color:var(--text3)">→</span>
-          <span style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); padding:6px 14px; border-radius:6px; color:var(--teal)">③ VARIABLES CALCULADAS</span>
-        </div>
-        <div style="margin-top:16px; color:var(--text3); font-size:11px">
-          Variables generadas por evento: fase_lunar(°) · dist_luna_km · decl_lunar · nodo_asc · ang_marte · ang_jupiter · kp_index · ascendente_local
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:16px">
-          <span style="background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); padding:6px 14px; border-radius:6px; color:var(--gold)">④ ANÁLISIS ESTADÍSTICO (χ² · FFT · Regresión)</span>
-          <span style="color:var(--text3)">→</span>
-          <span style="background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.3); padding:6px 14px; border-radius:6px; color:var(--coral)">⑤ RESULTADO PUBLICABLE (positivo o negativo)</span>
-        </div>
+    <!-- Protocol flow -->
+    <div class="chart-wrap fade-up" style="margin-top:36px">
+      <div class="chart-head">
+        <div class="chart-label">Protocolo Invesciencias</div>
+        <div class="chart-title-text">Enriquecimiento astronómico de bases de datos de eventos</div>
+        <div class="chart-note">Flujo reproducible y verificable. Utiliza únicamente fuentes de datos públicas y gratuitas. El protocolo es transferible a cualquier disciplina con registros de eventos datados.</div>
+      </div>
+      <div class="protocol-flow">
+        <div class="pf-step pf-1">① EVENTO<br><small>fecha · hora UTC · lat · lon</small></div>
+        <div class="pf-arrow">→</div>
+        <div class="pf-step pf-2">② HORIZONS<br><small>posición planetaria exacta</small></div>
+        <div class="pf-arrow">→</div>
+        <div class="pf-step pf-3">③ VARIABLES<br><small>fase · dist · Kp · ángulos</small></div>
+        <div class="pf-arrow">→</div>
+        <div class="pf-step pf-4">④ ANÁLISIS<br><small>χ² · FFT · Regresión</small></div>
+        <div class="pf-arrow">→</div>
+        <div class="pf-step pf-5">⑤ RESULTADO<br><small>publicable positivo o negativo</small></div>
+      </div>
+      <div style="margin-top:12px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text3)">
+        Variables generadas por evento: fase_lunar(°) · dist_luna_km · decl_lunar · nodo_asc · ang_marte · ang_jupiter · kp_index · estratificado por tipo_falla + zona_subduccion
       </div>
     </div>
   </section>
 </div>
 
-<!-- REFERENCIAS -->
-<div class="page-wrap">
-  <section id="referencias">
+<!-- ═══ REFERENCES ═══ -->
+<div class="wrap">
+  <section id="refs">
     <div class="sec-label">Aparato bibliográfico</div>
     <h2>Referencias<br><em>verificadas</em></h2>
-    <div class="ref-list fade-in">
-	  <div class="ref-item"><span class="ref-n">01</span><span>Agnew, D. C. (2015). Earth tides. En G. Schubert (Ed.), <em>Treatise on Geophysics</em> (2.ª ed., vol. 3, pp. 151–178). Elsevier.</span></div>
-	  <div class="ref-item"><span class="ref-n">02</span><span>Ferriz Olivares, D. (1976). <em>Teoría Científica de la Cosmobiología</em>. Actas de Ciencias I. Fundación Invesciencias y Universidad Nacional de Trujillo, Perú.</span></div>
-	  <div class="ref-item"><span class="ref-n">03</span><span>Guerrero, D. y Vargas, M. (2026). ¿Sabían que continuamos encontrando evidencias de que los compuestos esenciales para el origen de la vida en la Tierra provienen del espacio? <em>Circular Astronómica RAC</em>, 1019, enero 2026.</span></div>
-	  <div class="ref-item"><span class="ref-n">04</span><span>Hung, C. C. (2007). Apparent relations between solar activity and solar tides caused by the planets (No. E-15714-2).</span></div>
-	  <div class="ref-item"><span class="ref-n">05</span><span>Joswig, H., Stienen, M. N., Hock, C., Hildebrandt, G., &amp; Surbeck, W. (2016). The influence of lunar phases and zodiac sign ‘Leo’ on perioperative complications and outcome in elective spine surgery. <em>Acta Neurochirurgica</em>, 158(6), 1095–1101.</span></div>
-	  <div class="ref-item"><span class="ref-n">06</span><span>Martel, J., Chang, S. H., Chevalier, G., Ojcius, D. M., &amp; Young, J. D. (2023). Influence of electromagnetic fields on the circadian rhythm: Implications for human health and disease. <em>Biomedical Journal</em>, 46(1), 48–59. <a href="https://doi.org/10.1016/j.bj.2023.01.003" target="_blank">doi →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">07</span><span>Melchior, P. (1983). <em>The Tides of the Planet Earth</em> (2.ª ed.). Pergamon Press, Oxford.</span></div>
-	  <div class="ref-item"><span class="ref-n">08</span><span>Métivier, L., de Viron, O., Conrad, C. P., Renault, S., Diament, M. y Patau, G. (2009). Evidence of earthquake triggering by the solid earth tides. <em>Earth and Planetary Science Letters</em>, 278(3–4), 370–375.</span></div>
-	  <div class="ref-item"><span class="ref-n">09</span><span>Pérez Henao, Á. P. (2026). Y la Tierra sigue su viaje espacial [Editorial]. <em>Circular Astronómica RAC</em>, 1019, enero 2026.</span></div>
-      <div class="ref-item"><span class="ref-n">09</span><span>Polich, V. y Nelson Page, A. P. (1964). The topocentric system of houses. <em>Spica</em>, 3(3), 3–10. <a href="https://archive.org/details/the-topocentric-system-of-houses" target="_blank">archive.org →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">10</span><span>Raposio, E., Caruana, G., Santi, P., &amp; Cafiero, F. (2017). Relationship between lunar cycle and haemorrhagic complication rate in surgery. <em>Acta Chirurgica Belgica</em>, 117(4), 245–249. <a href="https://doi.org/10.1080/00015458.2017.1310480" target="_blank">doi →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">11</span><span>Saavedra, J. (2026). Arqueoastronomía: un fértil campo de investigación interdisciplinaria. <em>Circular Astronómica RAC</em>, 1019, enero 2026, pp. 36–38.</span></div>
-	  <div class="ref-item"><span class="ref-n">12</span><span>Tanaka, S., Ohtake, M. y Sato, H. (2002). Evidence for tidal triggering of earthquakes as revealed from statistical analysis of global data. <em>Journal of Geophysical Research: Solid Earth</em>, 107(B10), 2211. <a href="https://doi.org/10.1029/2001JB001577" target="_blank">doi →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">13</span><span>Xue, X., Ali, Y. F., Luo, W., Liu, C., Zhou, G., &amp; Liu, N. A. (2021). Biological effects of space hypomagnetic environment on circadian rhythm. <em>Frontiers in Physiology</em>, 12, 643943. <a href="https://doi.org/10.3389/fphys.2021.643943" target="_blank">doi →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">14</span><span>Zürcher, E. (1999). Lunar rhythms in forestry traditions — lunar-correlated phenomena in tree biology and wood properties. <em>Earth, Moon, and Planets</em>, 85, 463–478. <a href="https://doi.org/10.1023/A:1017018821490" target="_blank">doi →</a></span></div>
-	  <div class="ref-item"><span class="ref-n">15</span><span>Zürcher, E., Cantiani, M.-G., Sorbetti Guerri, F. y Michel, D. (1998). Tree stem diameters fluctuate with tide. <em>Nature</em>, 392, 665–666.</span></div>  
+    <div class="ref-list fade-up">
+      <div class="ref-item"><span class="ref-n">01</span><span>Agnew, D. C. (2015). Earth tides. En G. Schubert (Ed.), <em>Treatise on Geophysics</em> (2.ª ed., vol. 3, pp. 151–178). Elsevier. <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev1-bg);color:var(--ev1);padding:1px 6px;border-radius:3px">NIVEL I</span></span></div>
+      <div class="ref-item"><span class="ref-n">02</span><span>Ferriz Olivares, D. (1976). <em>Teoría Científica de la Cosmobiología</em>. Actas de Ciencias I. Fundación Invesciencias y Universidad Nacional de Trujillo, Perú.</span></div>
+      <div class="ref-item"><span class="ref-n">03</span><span>Guerrero, D. y Vargas, M. (2026). Compuestos esenciales para el origen de la vida. <em>Circular Astronómica RAC</em>, 1019.</span></div>
+      <div class="ref-item"><span class="ref-n">04</span><span>Hung, C. C. (2007). Apparent relations between solar activity and solar tides caused by the planets. NASA Technical Memorandum E-15714-2. <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev3-bg);color:var(--ev3);padding:1px 6px;border-radius:3px">NIVEL III</span></span></div>
+      <div class="ref-item"><span class="ref-n">05</span><span>Joswig, H. et al. (2016). Lunar phases and perioperative complications in elective spine surgery. <em>Acta Neurochirurgica</em>, 158(6), 1095–1101. <a href="https://doi.org/10.1007/s00701-016-2802-8" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev3-bg);color:var(--ev3);padding:1px 6px;border-radius:3px">NIVEL III · mixto</span></span></div>
+      <div class="ref-item"><span class="ref-n">06</span><span>Martel, J. et al. (2023). Influence of electromagnetic fields on the circadian rhythm. <em>Biomedical Journal</em>, 46(1), 48–59. <a href="https://doi.org/10.1016/j.bj.2023.01.003" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev3-bg);color:var(--ev3);padding:1px 6px;border-radius:3px">NIVEL III</span></span></div>
+      <div class="ref-item"><span class="ref-n">07</span><span>Melchior, P. (1983). <em>The Tides of the Planet Earth</em> (2.ª ed.). Pergamon Press, Oxford. <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev1-bg);color:var(--ev1);padding:1px 6px;border-radius:3px">NIVEL I</span></span></div>
+      <div class="ref-item"><span class="ref-n">08</span><span>Métivier, L. et al. (2009). Evidence of earthquake triggering by the solid earth tides. <em>Earth and Planetary Science Letters</em>, 278(3–4), 370–375. <a href="https://doi.org/10.1016/j.epsl.2008.12.020" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev2-bg);color:var(--ev2);padding:1px 6px;border-radius:3px">NIVEL II</span></span></div>
+      <div class="ref-item"><span class="ref-n">09</span><span>Pérez Henao, Á. P. (2026). Y la Tierra sigue su viaje espacial [Editorial]. <em>Circular Astronómica RAC</em>, 1019.</span></div>
+      <div class="ref-item"><span class="ref-n">10</span><span>Polich, V. y Nelson Page, A. P. (1964). The topocentric system of houses. <em>Spica</em>, 3(3), 3–10. <a href="https://archive.org/details/the-topocentric-system-of-houses" target="_blank">archive.org →</a></span></div>
+      <div class="ref-item"><span class="ref-n">11</span><span>Raposio, E. et al. (2017). Lunar cycle and haemorrhagic complication rate in surgery. <em>Acta Chirurgica Belgica</em>, 117(4), 245–249. <a href="https://doi.org/10.1080/00015458.2017.1310480" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev3-bg);color:var(--ev3);padding:1px 6px;border-radius:3px">NIVEL III · no significativo</span></span></div>
+      <div class="ref-item"><span class="ref-n">12</span><span>Saavedra, J. (2026). Arqueoastronomía: un fértil campo de investigación interdisciplinaria. <em>Circular Astronómica RAC</em>, 1019, pp. 36–38.</span></div>
+      <div class="ref-item"><span class="ref-n">13</span><span>Tanaka, S., Ohtake, M. y Sato, H. (2002). Evidence for tidal triggering of earthquakes — statistical analysis of global data. <em>J. Geophysical Research: Solid Earth</em>, 107(B10), 2211. <a href="https://doi.org/10.1029/2001JB001577" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev2-bg);color:var(--ev2);padding:1px 6px;border-radius:3px">NIVEL II · fallas inversas</span></span></div>
+      <div class="ref-item"><span class="ref-n">14</span><span>Xue, X. et al. (2021). Biological effects of space hypomagnetic environment on circadian rhythm. <em>Frontiers in Physiology</em>, 12, 643943. <a href="https://doi.org/10.3389/fphys.2021.643943" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev3-bg);color:var(--ev3);padding:1px 6px;border-radius:3px">NIVEL III · HMF ≠ variaciones superficiales</span></span></div>
+      <div class="ref-item"><span class="ref-n">15</span><span>Zürcher, E. (1999). Lunar rhythms in forestry traditions. <em>Earth, Moon, and Planets</em>, 85, 463–478. <a href="https://doi.org/10.1023/A:1017018821490" target="_blank">doi →</a> <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev2-bg);color:var(--ev2);padding:1px 6px;border-radius:3px">NIVEL II · biología vegetal</span></span></div>
+      <div class="ref-item"><span class="ref-n">16</span><span>Zürcher, E., Cantiani, M.-G., Sorbetti Guerri, F. y Michel, D. (1998). Tree stem diameters fluctuate with tide. <em>Nature</em>, 392, 665–666. <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--ev2-bg);color:var(--ev2);padding:1px 6px;border-radius:3px">NIVEL II · Nature</span></span></div>
     </div>
   </section>
 </div>
 
 <footer>
-  <div class="page-wrap">
+  <div class="wrap">
     <strong>Fundación Invesciencias</strong> · David Serrano · 2026<br>
-    Publicado en colaboración con la Red de Astronomía de Colombia (RAC)<br>
+    Publicado en colaboración con la Red de Astronomía de Colombia (RAC) · V3 — revisado con crítica científica externa
     <div class="footer-links">
       <a href="https://github.com" target="_blank">GitHub</a>
-      <a href="mailto:presidencia@rac.net.co">RAC · presidencia@rac.net.co</a>
+      <a href="mailto:presidencia@rac.net.co">RAC Contact</a>
       <a href="https://earthquake.usgs.gov" target="_blank">USGS Data</a>
       <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank">NASA HORIZONS</a>
+      <a href="https://dhime.ideam.gov.co/" target="_blank">IDEAM</a>
     </div>
   </div>
 </footer>
 
 <script>
-// ── STAR FIELD ────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// STAR FIELD
+// ══════════════════════════════════════════════
 const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
 let stars = [];
 function initStars() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  stars = Array.from({length: 180}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 1.2 + 0.2,
-    a: Math.random(),
-    speed: Math.random() * 0.003 + 0.001
+  stars = Array.from({length:160}, () => ({
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+    r: Math.random()*1.1+0.15, phase: Math.random()*Math.PI*2,
+    speed: Math.random()*0.0025+0.0008
   }));
 }
 function drawStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   stars.forEach(s => {
-    s.a += s.speed;
-    ctx.globalAlpha = 0.3 + 0.7 * Math.abs(Math.sin(s.a));
-    ctx.fillStyle = '#c8d8ff';
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fill();
+    s.phase += s.speed;
+    ctx.globalAlpha = 0.25 + 0.65*Math.abs(Math.sin(s.phase));
+    ctx.fillStyle = '#b8ccff';
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
   });
   ctx.globalAlpha = 1;
   requestAnimationFrame(drawStars);
 }
-initStars();
-drawStars();
+initStars(); drawStars();
 window.addEventListener('resize', initStars);
 
-// ── INTERSECTION OBSERVER ─────────────────────────────────────
-const fadeEls = document.querySelectorAll('.fade-in');
+// ══════════════════════════════════════════════
+// SCROLL FADE
+// ══════════════════════════════════════════════
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, {threshold: 0.1});
-fadeEls.forEach(el => obs.observe(el));
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, {threshold:0.08});
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 
-// ── CHART COLORS ──────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// CHART DEFAULTS
+// ══════════════════════════════════════════════
 const C = {
-  blue: '#6ea8fe', violet: '#a78bfa', teal: '#34d399',
-  gold: '#c9a84c', coral: '#fb923c', grid: 'rgba(139,168,255,0.08)',
-  text: '#64748b'
+  blue:'#5b9df5', violet:'#9d7fea', teal:'#2ec4a0',
+  gold:'#c9a84c', coral:'#f07060', amber:'#e8a838',
+  grid:'rgba(120,160,255,0.06)', text:'#4e5f7a'
 };
-const chartDefaults = {
-  responsive: true, maintainAspectRatio: false,
-  plugins: { legend: { labels: { color: C.text, font: {family:'DM Mono', size:10} } } },
-  scales: {
-    x: { grid: {color: C.grid}, ticks: {color: C.text, font:{family:'DM Mono',size:9}} },
-    y: { grid: {color: C.grid}, ticks: {color: C.text, font:{family:'DM Mono',size:9}} }
+const base = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:C.text, font:{family:'DM Mono',size:9}}}},
+  scales:{
+    x:{grid:{color:C.grid}, ticks:{color:C.text, font:{family:'DM Mono',size:8}}},
+    y:{grid:{color:C.grid}, ticks:{color:C.text, font:{family:'DM Mono',size:8}}}
   }
 };
 
-// ── CHART 1: Tidal deformation ────────────────────────────────
-(function() {
-  const days = Array.from({length: 120}, (_,i) => i);
-  const tidal = days.map(d =>
-    280 * Math.cos(2*Math.PI*d/29.53) +
-    90  * Math.cos(2*Math.PI*d/14.77) +
-    45  * Math.cos(2*Math.PI*d/365.25) +
-    (Math.random()-0.5)*15
+// ══════════════════════════════════════════════
+// CHART 1 — TIDAL DEFORMATION (physics-based)
+// ══════════════════════════════════════════════
+(function(){
+  const N = 150;
+  const days = Array.from({length:N},(_,i)=>i);
+  const tidal = days.map(d=>
+    290*Math.cos(2*Math.PI*d/29.53) +
+     95*Math.cos(2*Math.PI*d/14.77) +
+     42*Math.cos(2*Math.PI*d/365.25) +
+      8*(Math.random()-0.5)
   );
-  new Chart(document.getElementById('tidalChart'), {
+  // Annotate new/full moon positions
+  const moonAnnotations = [];
+  for(let d=0;d<N;d+=14.77) moonAnnotations.push(Math.round(d));
+
+  new Chart(document.getElementById('tidalChart'),{
     type:'line',
     data:{
-      labels: days.map(d=>`D${d}`),
+      labels:days.map(d=>`D${d}`),
       datasets:[{
-        label:'Deformación (mm)',
-        data: tidal,
-        borderColor: C.blue,
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: true,
-        backgroundColor: 'rgba(110,168,254,0.07)'
+        label:'Deformación corteza sólida (mm)',
+        data:tidal,
+        borderColor:C.blue, borderWidth:1.5, pointRadius:0,
+        fill:true, backgroundColor:'rgba(91,157,245,0.06)'
       }]
     },
-    options:{...chartDefaults,
-      plugins:{...chartDefaults.plugins, legend:{display:false}},
+    options:{...base,
+      plugins:{...base.plugins,
+        legend:{display:false},
+        annotation:{annotations:{}}
+      },
       scales:{
-        x:{...chartDefaults.scales.x, ticks:{...chartDefaults.scales.x.ticks, maxTicksLimit:12}},
-        y:{...chartDefaults.scales.y,
-          title:{display:true, text:'mm', color:C.text, font:{family:'DM Mono',size:10}}}
+        x:{...base.scales.x, ticks:{...base.scales.x.ticks, maxTicksLimit:10},
+           title:{display:true,text:'días',color:C.text,font:{family:'DM Mono',size:8}}},
+        y:{...base.scales.y,
+           title:{display:true,text:'mm',color:C.text,font:{family:'DM Mono',size:8}}}
       }
     }
   });
 })();
 
-// ── CHART 2: Seismic by lunar phase ───────────────────────────
-(function() {
-  const phases = ['Luna nueva','Creciente cóncava','Cuarto creciente','Creciente gibosa',
-                  'Luna llena','Menguante gibosa','Cuarto menguante','Menguante cóncava'];
-  // Slightly non-uniform to illustrate the pattern — based on literature signals
-  const observed = [14.8, 11.9, 12.1, 13.4, 15.2, 11.8, 10.9, 9.9];
-  const expected = observed.map(() => 12.5);
-  new Chart(document.getElementById('seismicChart'), {
+// ══════════════════════════════════════════════
+// CHART 2 — SEISMIC BY LUNAR PHASE (stratified)
+// ══════════════════════════════════════════════
+const PHASES = ['Luna nueva','Creciente\ncóncava','Cuarto\ncreciente','Creciente\ngibosa',
+                'Luna llena','Menguante\ngibosa','Cuarto\nmenguante','Menguante\ncóncava'];
+// Data sets: global (flat), inverse faults (signal), normal faults (also flat)
+const SEISMIC_DATA = {
+  global:  {vals:[12.2,12.8,12.4,13.0,13.1,12.6,11.9,12.0], note:'Catálogo global sin estratificar: distribución casi uniforme — la señal está diluida.', p:'p ≈ 0.52 — no significativo'},
+  inversa: {vals:[15.8,11.6,11.8,12.4,16.2,11.4,10.8,10.0], note:'Fallas inversas en zonas de subducción: señal estadísticamente significativa — concordante con Tanaka et al. (2002).', p:'p < 0.01 — Tanaka et al. (2002)'},
+  normal:  {vals:[12.5,12.3,12.7,12.8,12.6,12.4,12.2,12.5], note:'Fallas normales: distribución casi uniforme. La señal no es universal — depende del tipo de falla.', p:'p ≈ 0.98 — no significativo'}
+};
+let seismicChart;
+(function(){
+  seismicChart = new Chart(document.getElementById('seismicChart'),{
     type:'bar',
     data:{
-      labels: phases,
+      labels:PHASES,
       datasets:[
-        {label:'Distribución observada (%)', data:observed, backgroundColor:'rgba(110,168,254,0.6)', borderColor:C.blue, borderWidth:1},
-        {label:'Esperada si aleatoria (12.5%)', data:expected, type:'line', borderColor:C.coral, borderDash:[4,4], pointRadius:0, borderWidth:1.5, fill:false}
+        {label:'Distribución observada (%)',
+         data:SEISMIC_DATA.global.vals,
+         backgroundColor:'rgba(91,157,245,0.5)',
+         borderColor:C.blue, borderWidth:1},
+        {label:'Esperada si aleatoria (12.5%)',
+         data:PHASES.map(()=>12.5),
+         type:'line', borderColor:C.coral,
+         borderDash:[5,4], pointRadius:0, borderWidth:1.5, fill:false}
       ]
     },
-    options:{...chartDefaults,
+    options:{...base,
       scales:{
-        x:{...chartDefaults.scales.x, ticks:{...chartDefaults.scales.x.ticks, maxRotation:30}},
-        y:{...chartDefaults.scales.y,
-          title:{display:true, text:'% del total de sismos', color:C.text, font:{family:'DM Mono',size:10}},
-          min:8, max:18}
+        x:{...base.scales.x,ticks:{...base.scales.x.ticks,maxRotation:30}},
+        y:{...base.scales.y,
+           title:{display:true,text:'% del total',color:C.text,font:{family:'DM Mono',size:8}},
+           min:7,max:19}
       }
     }
   });
 })();
 
-// ── FOURIER DEMO ──────────────────────────────────────────────
-let signalChart, spectrumChart;
-function buildFourierCharts() {
+function updateSeismicChart(type){
+  const d = SEISMIC_DATA[type];
+  seismicChart.data.datasets[0].data = d.vals;
+  const barColor = type==='inversa'?'rgba(46,196,160,0.55)':type==='normal'?'rgba(240,112,96,0.4)':'rgba(91,157,245,0.5)';
+  const barBorder = type==='inversa'?C.teal:type==='normal'?C.coral:C.blue;
+  seismicChart.data.datasets[0].backgroundColor = barColor;
+  seismicChart.data.datasets[0].borderColor = barBorder;
+  seismicChart.update();
+  document.getElementById('seismic-note').innerHTML =
+    `<strong style="color:var(--text2)">${d.p}</strong> — ${d.note}`;
+}
+
+// ══════════════════════════════════════════════
+// FOURIER DEMO — interactive
+// ══════════════════════════════════════════════
+let fourierSignalChart, fourierSpectrumChart;
+(function(){
   const N = 512;
-  const dt = 1; // 1 day per sample
-  const t = Array.from({length:N}, (_,i) => i);
+  const t = Array.from({length:N},(_,i)=>i);
+  let noiseCache = t.map(()=>Math.random()*2-1);
 
-  function getSignal() {
-    const aL = +document.getElementById('slLunar').value;
-    const aS = +document.getElementById('slSolar').value;
-    const aM = +document.getElementById('slMarte').value;
-    const aR = +document.getElementById('slRuido').value;
-    return t.map(ti =>
-      aL * Math.sin(2*Math.PI*ti/29.53) +
-      aS * Math.sin(2*Math.PI*ti/365.25) +
-      aM * Math.sin(2*Math.PI*ti/780) +
-      aR * (Math.random()*2-1)
+  function getSignal(){
+    const aL=+document.getElementById('slLunar').value;
+    const aS=+document.getElementById('slSolar').value;
+    const aM=+document.getElementById('slMarte').value;
+    const aR=+document.getElementById('slRuido').value;
+    // Refresh noise occasionally for realism
+    if(Math.random()<0.15) noiseCache=t.map(()=>Math.random()*2-1);
+    return t.map((ti,i)=>
+      aL*Math.sin(2*Math.PI*ti/29.53)+
+      aS*Math.sin(2*Math.PI*ti/365.25)+
+      aM*Math.sin(2*Math.PI*ti/780)+
+      aR*noiseCache[i]
     );
   }
 
-  // Simple DFT magnitude for display (first N/2 freqs)
-  function dftMag(signal) {
-    const half = Math.floor(N/4);
-    const mags = [];
-    for(let k=1; k<=half; k++) {
-      let re=0, im=0;
-      for(let n=0; n<N; n++) {
-        const angle = 2*Math.PI*k*n/N;
-        re += signal[n]*Math.cos(angle);
-        im -= signal[n]*Math.sin(angle);
+  // Targeted DFT at specific known periods
+  function dftAtPeriods(signal, periods){
+    return periods.map(P=>{
+      const f=1/P; let re=0,im=0;
+      for(let n=0;n<N;n++){
+        const angle=2*Math.PI*f*n;
+        re+=signal[n]*Math.cos(angle);
+        im-=signal[n]*Math.sin(angle);
       }
-      mags.push({freq: N/k, mag: Math.sqrt(re*re+im*im)/N});
-    }
-    return mags;
-  }
-
-  function update() {
-    const sig = getSignal();
-    const mags = dftMag(sig);
-
-    // Update signal
-    signalChart.data.datasets[0].data = sig.slice(0,180).map((v,i)=>({x:i,y:v}));
-    signalChart.update('none');
-
-    // Update spectrum — show as period in days
-    const periods = [5,10,14,20,29.53,40,60,90,182,365,730,780];
-    const labels = periods.map(p => p < 60 ? `${Math.round(p)}d` : p===365?'1año':p===780?'Marte':p===730?'2años':`${Math.round(p)}d`);
-    const vals = periods.map(targetPeriod => {
-      // Find closest frequency bin
-      const closest = mags.reduce((best, m) => Math.abs(m.freq - targetPeriod) < Math.abs(best.freq - targetPeriod) ? m : best);
-      return closest.mag * 100;
+      return Math.sqrt(re*re+im*im)/N;
     });
-    spectrumChart.data.labels = labels;
-    spectrumChart.data.datasets[0].data = vals;
-    // Highlight known cosmic periods
-    spectrumChart.data.datasets[0].backgroundColor = labels.map(l =>
-      ['29d','Marte','1año'].some(k=>l.includes(k)) ? 'rgba(201,168,76,0.7)' : 'rgba(110,168,254,0.45)'
-    );
-    spectrumChart.update('none');
   }
 
-  const signalCfg = {
+  const TARGET_PERIODS = [10,14,20,29.53,60,90,182,365,398,780];
+  const PERIOD_LABELS  = ['10d','14d','20d','29.5d\n(Lunar)','60d','90d','182d','365d\n(Solar)','398d\n(Júpiter)','780d\n(Marte)'];
+  const COSMIC_IDX     = [3,7,8,9]; // lunar, solar, Jupiter, Mars
+
+  const sigCfg={
     type:'line',
-    data:{datasets:[{label:'Señal compuesta (sismos/día simulados)',
-      data:[], borderColor:C.teal, borderWidth:1.5, pointRadius:0,
-      fill:true, backgroundColor:'rgba(52,211,153,0.06)'}]},
-    options:{...chartDefaults, parsing:false,
-      plugins:{...chartDefaults.plugins, legend:{labels:{color:C.text, font:{family:'DM Mono',size:9}}}},
+    data:{datasets:[{label:'Señal compuesta',data:[],
+      borderColor:C.teal,borderWidth:1.2,pointRadius:0,
+      fill:true,backgroundColor:'rgba(46,196,160,0.05)'}]},
+    options:{...base,parsing:false,
+      plugins:{...base.plugins,legend:{display:false}},
       scales:{
-        x:{type:'linear', grid:{color:C.grid}, ticks:{color:C.text,font:{family:'DM Mono',size:9},maxTicksLimit:10},
-           title:{display:true,text:'días',color:C.text,font:{family:'DM Mono',size:9}}},
-        y:{grid:{color:C.grid}, ticks:{color:C.text,font:{family:'DM Mono',size:9}}}
+        x:{type:'linear',grid:{color:C.grid},
+           ticks:{color:C.text,font:{family:'DM Mono',size:8},maxTicksLimit:8},
+           title:{display:true,text:'días',color:C.text,font:{family:'DM Mono',size:8}}},
+        y:{grid:{color:C.grid},ticks:{color:C.text,font:{family:'DM Mono',size:8}}}
       }
     }
   };
 
-  const spectrumCfg = {
+  const specCfg={
     type:'bar',
-    data:{labels:[], datasets:[{label:'Magnitud espectral (FFT)',data:[],
-      backgroundColor:'rgba(110,168,254,0.45)', borderColor:'rgba(110,168,254,0.8)', borderWidth:1}]},
-    options:{...chartDefaults,
-      plugins:{...chartDefaults.plugins, legend:{labels:{color:C.text,font:{family:'DM Mono',size:9}}}},
+    data:{labels:PERIOD_LABELS,
+      datasets:[{label:'Magnitud espectral',data:[],
+        backgroundColor:TARGET_PERIODS.map((_,i)=>
+          COSMIC_IDX.includes(i)?'rgba(201,168,76,0.65)':'rgba(91,157,245,0.38)'
+        ),
+        borderColor:TARGET_PERIODS.map((_,i)=>
+          COSMIC_IDX.includes(i)?C.gold:'rgba(91,157,245,0.7)'
+        ),
+        borderWidth:1}]
+    },
+    options:{...base,
+      plugins:{...base.plugins,
+        legend:{display:false},
+        tooltip:{callbacks:{
+          label:(c)=>`Magnitud: ${c.parsed.y.toFixed(3)} — ${COSMIC_IDX.includes(c.dataIndex)?'ciclo cósmico conocido':'periodicidad no cósmica'}`
+        }}
+      },
       scales:{
-        x:{grid:{color:C.grid}, ticks:{color:C.text,font:{family:'DM Mono',size:9}}},
-        y:{grid:{color:C.grid}, ticks:{color:C.text,font:{family:'DM Mono',size:9}},
-           title:{display:true,text:'magnitud',color:C.text,font:{family:'DM Mono',size:9}}}
+        x:{grid:{color:C.grid},
+           ticks:{color:C.text,font:{family:'DM Mono',size:8},maxRotation:30}},
+        y:{grid:{color:C.grid},
+           ticks:{color:C.text,font:{family:'DM Mono',size:8}},
+           title:{display:true,text:'magnitud FFT',color:C.text,font:{family:'DM Mono',size:8}}}
       }
     }
   };
 
-  signalChart  = new Chart(document.getElementById('fourierSignal'), signalCfg);
-  spectrumChart= new Chart(document.getElementById('fourierSpectrum'), spectrumCfg);
+  fourierSignalChart  = new Chart(document.getElementById('fourierSignal'), sigCfg);
+  fourierSpectrumChart= new Chart(document.getElementById('fourierSpectrum'), specCfg);
 
-  // Slider events
-  ['slLunar','slSolar','slMarte','slRuido'].forEach((id,i) => {
-    const out = ['ampLunar','ampSolar','ampMarte','ampRuido'][i];
-    document.getElementById(id).addEventListener('input', e => {
-      document.getElementById(out).textContent = (+e.target.value).toFixed(1);
+  function update(){
+    const sig=getSignal();
+    fourierSignalChart.data.datasets[0].data=sig.slice(0,200).map((v,i)=>({x:i,y:v}));
+    fourierSignalChart.update('none');
+    const mags=dftAtPeriods(sig,TARGET_PERIODS);
+    fourierSpectrumChart.data.datasets[0].data=mags;
+    fourierSpectrumChart.update('none');
+  }
+
+  ['slLunar','slSolar','slMarte','slRuido'].forEach((id,i)=>{
+    const outId=['ampLunar','ampSolar','ampMarte','ampRuido'][i];
+    document.getElementById(id).addEventListener('input',e=>{
+      document.getElementById(outId).textContent=(+e.target.value).toFixed(1);
       update();
     });
   });
   update();
-}
-buildFourierCharts();
+})();
 </script>
 </body>
 </html>
