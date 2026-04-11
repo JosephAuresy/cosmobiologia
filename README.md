@@ -1,6 +1,6 @@
 # El cosmos que habitamos · Invesciencias
 
-Página web del artículo científico **"El cosmos que habitamos: cosmobiología, grandes bases de datos y una propuesta de investigación abierta a todas las ciencias"** — David Serrano, Fundación Invesciencias. Publicado en la Circular Astronómica de la Red de Astronomía de Colombia (RAC), 2026.
+Página web del artículo científico **"El cosmos que habitamos: Fuerzas lunares, geomagnéticas y circadianas: evidencia escalonada y un programa de investigación desde Invesciencias"** — David Serrano, Fundación Invesciencias. Publicado en la Circular Astronómica de la Red de Astronomía de Colombia (RAC), 2026.
 
 ## Contenido de la página
 
